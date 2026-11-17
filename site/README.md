@@ -45,6 +45,21 @@ nusxasini yangilang:
 npm run build:plugin   # VITE_EVENTS_URL=/events.jsonl bilan -> ../plugins/usta/dashboard/
 ```
 
+## Ofis ko'rinishi
+
+Dashboard'dagi "Ofis" tabi o'sha hodisalarni jonli xona sifatida ko'rsatadi: har bir agent o'z personaji
+bilan (`public/office/`, Higgsfield'da chizilgan). Holat hodisalardan olinadi, qo'shimcha token sarflanmaydi.
+
+| Holat        | Qachon                                         | Ko'rinish                                   |
+| ------------ | ---------------------------------------------- | ------------------------------------------- |
+| Kod yozmoqda | coder, simplifier, tester ishlayotganda        | Stolga borib kompyuterda o'tiradi            |
+| Reja yozmoqda| planner ishlayotganda                          | Daftarga yozadi                              |
+| O'ylamoqda   | triage, analyzer, reviewer'lar, orchestrator   | Joyida turib tepaga qaraydi, 💭 pufakcha     |
+| Gaplashmoqda | agent ishini tugatib natijani topshirganda     | Orchestrator yoniga borib gaplashadi, 💬     |
+| Dam olmoqda  | ish yo'q                                        | Pastki zonada aylanib yuradi                 |
+
+Rol sozlamalari (rang, stol joyi, ish holati): `src/widgets/agent-office/model/constants.ts`.
+
 ## Tuzilma
 
 ```
@@ -54,7 +69,7 @@ src/
   widgets/    landing: site-header, hero, word-marquee, pipeline-steps, feature-bento,
               statement, command-list, final-cta
               dashboard: task-overview, agent-runs, plan-map, model-usage, test-summary,
-              review-findings, event-log
+              review-findings, event-log, agent-office
   entities/   agent-event (turlar, buildSnapshot, useEventStream, ModelChip)
   shared/     config (routes, sections), lib (gsap, lenis, format), ui (Logo, Panel, StatusPill, CopyCommand)
 ```

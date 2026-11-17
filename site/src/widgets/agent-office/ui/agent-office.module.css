@@ -1,0 +1,59 @@
+.scroller {
+  overflow-x: auto;
+  margin: 0 -6px;
+  padding: 0 6px;
+  border-radius: var(--radius);
+}
+
+.room {
+  position: relative;
+  min-width: 640px;
+  container-type: inline-size;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 70%, rgb(255 106 43 / 0.06), transparent 70%),
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 64px),
+    linear-gradient(#141417, #0d0d10);
+}
+
+.wall {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 12%;
+  border-bottom: 1px solid var(--line-strong);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5%,
+      rgb(140 160 255 / 0.05) 5% 15%,
+      transparent 15% 20%
+    ),
+    linear-gradient(#1b1b20, #151518);
+}
+
+.spot {
+  position: absolute;
+  width: 15%;
+  height: 7%;
+  border: 1px dashed color-mix(in srgb, var(--agent-color) 45%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--agent-color) 8%, transparent);
+  transform: translate(-50%, -60%);
+}
+
+.table {
+  position: absolute;
+  width: 11%;
+  height: 7%;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 35%, #2a2a30, #19191d);
+  box-shadow:
+    0 0 0 4px rgb(245 196 81 / 0.08),
+    0 10px 24px rgb(0 0 0 / 0.5);
+  transform: translate(-50%, -50%);
+}

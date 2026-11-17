@@ -1,0 +1,1 @@
+import{i as e,o as t,t as n}from"./index-Drto4lRH.js";var r=n();function i(){return(0,r.jsxs)(`main`,{className:`container`,style:{minHeight:`100svh`,display:`grid`,placeContent:`center`,gap:16},children:[(0,r.jsx)(`p`,{className:`display`,style:{fontSize:`clamp(80px, 18vw, 240px)`},children:`404`}),(0,r.jsx)(t,{to:e.HOME,children:`← Bosh sahifa`})]})}export{i as Component};

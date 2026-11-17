@@ -1,0 +1,137 @@
+.agent {
+  position: absolute;
+  width: 6.6cqw;
+  height: 10.5cqw;
+  transform: translate(-50%, -100%);
+  user-select: none;
+}
+
+.body {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.25s var(--ease);
+}
+
+.agent[data-facing="left"] .body {
+  transform: scaleX(-1);
+}
+
+.agent[data-walking="true"] .body {
+  animation: step 0.42s ease-in-out infinite;
+}
+
+.agent::before {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 70%;
+  height: 10px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.45);
+  content: "";
+  filter: blur(3px);
+  transform: translateX(-50%);
+}
+
+.stand,
+.desk {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  max-width: none;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+}
+
+.stand {
+  height: 100%;
+}
+
+.desk {
+  height: 98%;
+  opacity: 0;
+}
+
+.agent[data-pose="desk"] .stand {
+  opacity: 0;
+}
+
+.agent[data-pose="desk"] .desk {
+  opacity: 1;
+}
+
+.agent[data-pose="desk"]::before {
+  width: 150%;
+}
+
+.agent[data-walking="true"] > :not(.body, .tag) {
+  opacity: 0;
+}
+
+.agent[data-activity="thinking"][data-walking="false"] .stand {
+  animation: look-up 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.tag {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgb(17 17 19 / 0.82);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  backdrop-filter: blur(6px);
+}
+
+.swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--agent-color);
+}
+
+.count {
+  color: var(--agent-color);
+}
+
+.status {
+  display: none;
+  color: var(--muted);
+}
+
+.agent:hover .status,
+.agent:not([data-activity="idle"]) .status {
+  display: inline;
+}
+
+.agent:hover {
+  z-index: 200 !important;
+}
+
+@keyframes step {
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes look-up {
+  50% {
+    transform: translateX(-50%) rotate(-2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent[data-walking="true"] .body,
+  .agent[data-activity="thinking"][data-walking="false"] .stand {
+    animation: none;
+  }
+}
