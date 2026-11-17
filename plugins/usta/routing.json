@@ -1,0 +1,226 @@
+{
+  "_comment": "Default model routing for /usta:task. To change it for one project, copy this file to <project>/.claude/routing.json and edit the copy. Models are aliases; full IDs are pinned in model_ids.",
+  "model_ids": {
+    "opus": "claude-opus-5-5",
+    "sonnet": "claude-sonnet-5-5",
+    "haiku": "claude-haiku-5-5"
+  },
+  "orchestrator_model": "opus",
+  "triage_model": "sonnet",
+  "explore_model": "haiku",
+  "risk_floor": {
+    "_comment": "If triage flags any of these risk areas, complexity is raised to at least this level.",
+    "areas": [
+      "auth",
+      "payments",
+      "security",
+      "data_migration",
+      "schema_change",
+      "public_api",
+      "infra",
+      "concurrency"
+    ],
+    "min_level": "complex"
+  },
+  "parallel": {
+    "_comment": "Parallel coders in separate git worktrees. Used only when the planner splits the plan into independent subtasks with disjoint files; otherwise implementation runs sequentially in the main tree.",
+    "levels": [
+      "moderate",
+      "complex",
+      "critical"
+    ],
+    "max_agents": 3
+  },
+  "levels": {
+    "trivial": {
+      "description": "Typo, rename, config value, one-line fix. No design decisions.",
+      "orchestrator_effort": "low",
+      "phases": [
+        "implement",
+        "test"
+      ],
+      "require_approval": false,
+      "max_review_rounds": 0,
+      "max_budget_usd": 1.0,
+      "agents": {
+        "coder": {
+          "model": "sonnet",
+          "effort": "low"
+        },
+        "tester": {
+          "model": "haiku",
+          "effort": "low"
+        }
+      }
+    },
+    "simple": {
+      "description": "Small bug fix or feature inside one module, clear requirements, existing pattern to follow.",
+      "orchestrator_effort": "medium",
+      "phases": [
+        "brainstorm",
+        "plan",
+        "implement",
+        "test",
+        "review"
+      ],
+      "require_approval": false,
+      "max_review_rounds": 1,
+      "max_budget_usd": 3.0,
+      "agents": {
+        "planner": {
+          "model": "opus",
+          "effort": "medium"
+        },
+        "coder": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "tester": {
+          "model": "sonnet",
+          "effort": "low"
+        },
+        "reviewer": {
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      }
+    },
+    "moderate": {
+      "description": "Feature across several files or modules, some design choices, new tests needed.",
+      "orchestrator_effort": "high",
+      "phases": [
+        "analyze",
+        "brainstorm",
+        "plan",
+        "implement",
+        "simplify",
+        "test",
+        "review"
+      ],
+      "require_approval": true,
+      "max_review_rounds": 2,
+      "max_budget_usd": 10.0,
+      "agents": {
+        "analyzer": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "planner": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "coder": {
+          "model": "sonnet",
+          "effort": "high"
+        },
+        "simplifier": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "tester": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "reviewer": {
+          "model": "opus",
+          "effort": "high"
+        }
+      }
+    },
+    "complex": {
+      "description": "Cross-cutting change, new subsystem, schema or public API change, non-obvious trade-offs.",
+      "orchestrator_effort": "xhigh",
+      "phases": [
+        "analyze",
+        "brainstorm",
+        "plan",
+        "implement",
+        "simplify",
+        "test",
+        "review",
+        "security"
+      ],
+      "require_approval": true,
+      "max_review_rounds": 3,
+      "max_budget_usd": 25.0,
+      "agents": {
+        "analyzer": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "planner": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "coder": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "simplifier": {
+          "model": "opus",
+          "effort": "medium"
+        },
+        "tester": {
+          "model": "sonnet",
+          "effort": "high"
+        },
+        "reviewer": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "security-reviewer": {
+          "model": "opus",
+          "effort": "high"
+        }
+      }
+    },
+    "critical": {
+      "description": "Auth, payments, data migrations on production data, security fixes, anything hard to roll back.",
+      "orchestrator_effort": "xhigh",
+      "phases": [
+        "analyze",
+        "brainstorm",
+        "plan",
+        "implement",
+        "simplify",
+        "test",
+        "review",
+        "security"
+      ],
+      "require_approval": true,
+      "max_review_rounds": 3,
+      "max_budget_usd": 50.0,
+      "agents": {
+        "analyzer": {
+          "model": "opus",
+          "effort": "max"
+        },
+        "planner": {
+          "model": "opus",
+          "effort": "max"
+        },
+        "coder": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "simplifier": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "tester": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "reviewer": {
+          "model": "opus",
+          "effort": "max"
+        },
+        "security-reviewer": {
+          "model": "opus",
+          "effort": "xhigh"
+        }
+      }
+    }
+  },
+  "_comment_phases": "brainstorm: the orchestrator asks the human only plan-changing questions, each with a recommended answer, and waits. In 'simple' it is skipped when there is no such question."
+}

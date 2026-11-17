@@ -1,0 +1,12 @@
+{
+  "name": "usta-jamoa",
+  "description": "Multi-agent software engineering team for Claude Code",
+  "owner": { "name": "Iron Dev" },
+  "plugins": [
+    {
+      "name": "usta",
+      "source": "./plugins/usta",
+      "description": "Triage -> analyze -> plan -> human approval -> implement -> simplify -> test -> review, with model routing per complexity level"
+    }
+  ]
+}
