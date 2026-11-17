@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "build:plugin": "tsc -b && vite build --mode plugin --outDir ../plugins/usta/dashboard --emptyOutDir"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

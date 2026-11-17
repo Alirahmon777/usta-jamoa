@@ -46,6 +46,7 @@ GitHub'siz sinab ko'rish: `claude --plugin-dir ./plugins/usta`.
 | `/usta:approve` | Rejani tasdiqlaydi. **Faqat siz** yoza olasiz: Claude bu buyruqni chaqira olmaydi, tasdiqni hook yozadi |
 | `/usta:resume [docs/plans/<papka>]` | Chala qolgan ishni yangi sessiyada HANDOFF.md dan davom ettiradi |
 | `/usta:audit [yo'l]` | Tayyor loyihani tekshiradi: buglar, hardcode'lar, xavfsizlik va yaxshilanishlarni `docs/known-issues/` ga yozadi. Kodni o'zgartirmaydi |
+| `/usta:dashboard` | Jonli dashboardni brauzerda ochadi: agentlar, bosqichlar, modellar, token va narx |
 
 Orkestrator `/task` davomida Opus'da ishlaydi. Har bir loyihada `init` qilish shart emas: u
 qilinmasa ham plugin shablonlari va standart routing bilan ishlaydi.
@@ -136,6 +137,29 @@ Qoidalar ziddiyatga kelsa, ustunlik tartibi: loyiha qoidalari va skilllari, keyi
 
 Agar `requireTask` ni hamma loyihada majburiy qilmoqchi bo'lmasangiz, uni faqat kerakli loyihalarda yoqing.
 
+## Jonli dashboard
+
+Agentlar ishini brauzerda kuzatish uchun Claude Code'da bir marta yozing:
+
+```
+/usta:dashboard
+```
+
+Brauzer o'zi ochiladi (`http://localhost:4517/dashboard`), keyin shu sessiyada yoki boshqa terminalda
+odatdagidek `/usta:task <so'rov>` ishlating. Sahifa har 2 soniyada yangilanadi. Hech narsa o'rnatish
+shart emas: dashboard plugin ichida tayyor holda keladi, uni Node'ning o'zi serve qiladi
+(faqat `127.0.0.1` da, tashqaridan ko'rinmaydi).
+
+Qanday ishlaydi:
+- `SubagentStart`/`SubagentStop` hooklari har `usta:*` agent boshlanishi va tugashini
+  `.claude/state/usta-events.jsonl` ga yozadi: model, effort, token va taxminiy narx (agent transkriptidan).
+  Task yo'q paytda hech narsa yozilmaydi.
+- `task-state.mjs` task boshlanishi, tasdiq kutilishi/berilishi va tugashini yozadi.
+- Reja qismlari, test natijalari va review topilmalarini orkestrator `task-state.mjs event` bilan qo'shadi.
+- Yangi task boshlanganda log yangidan boshlanadi: dashboard oxirgi taskni ko'rsatadi.
+
+Narx API narxlari bo'yicha taxmin (obuna bilan ishlasangiz ham shu hisoblanadi), hisob-faktura emas.
+
 ## Python orkestrator haqida
 
 Plugin ichiga kiritilmadi: interaktiv ishni plugin to'liq qoplaydi. CI yoki skript uchun ikki yo'l bor:
@@ -149,13 +173,15 @@ Plugin ichiga kiritilmadi: interaktiv ishni plugin to'liq qoplaydi. CI yoki skri
 plugins/usta/
   .claude-plugin/plugin.json
   agents/          8 ta agent: triage, analyzer, planner, coder, simplifier, tester, reviewer, security-reviewer
-  skills/          task, resume, approve, audit, init (buyruqlar)
+  skills/          task, resume, approve, audit, init, dashboard (buyruqlar)
                    engineering-standards, project-docs (agentlarga avtomatik yuklanadi)
                    react-standards (ixtiyoriy)
   hooks/hooks.json
-  scripts/         hook va task holati skriptlari (Node.js)
+  scripts/         hook, task holati, hodisalar logi va dashboard serveri (Node.js, bog'liqliksiz)
+  dashboard/       site/ dan yig'ilgan tayyor dashboard (npm run build:plugin)
   routing.json     standart daraja -> model/effort/bosqichlar
   templates/docs/  plans/_TEMPLATE/, memory, adr, simplification, known-issues va migratsiya shablonlari
 examples/eslint.config.js           murakkablik chegaralari bilan ESLint namunasi
-tests/hooks.test.mjs                node --test tests/hooks.test.mjs
+tests/                              node --test tests/*.test.mjs
+site/                               landing va dashboard manbasi (React + Vite)
 ```

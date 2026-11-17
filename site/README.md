@@ -37,8 +37,13 @@ Dashboard JSONL faylni o'qiydi: har qatorda bitta hodisa. Turlari
 - **Jonli**: `VITE_EVENTS_URL=/events.jsonl npm run dev`. Fayl har 2 soniyada qayta o'qiladi,
   yarim yozilgan oxirgi qator o'tkazib yuboriladi.
 
-Hozircha bu faylni plugin hooklari yozmaydi: bu keyingi qadam (hook har agent start/stop'da
-`.claude/state/events.jsonl` ga bitta qator qo'shadi, dashboard esa shu faylni o'qiydi).
+Real agentlar uchun bu faylni plugin yozadi (`<loyiha>/.claude/state/usta-events.jsonl`), `/usta:dashboard`
+esa uni `/events.jsonl` sifatida serve qiladi. Dashboard'ni o'zgartirgandan keyin plugin ichidagi
+nusxasini yangilang:
+
+```bash
+npm run build:plugin   # VITE_EVENTS_URL=/events.jsonl bilan -> ../plugins/usta/dashboard/
+```
 
 ## Tuzilma
 
