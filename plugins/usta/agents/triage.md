@@ -33,3 +33,5 @@ Return only this JSON object:
   "needs_clarification": <bool>,
   "questions": [{"question": "...", "default_answer": "..."}]
 }
+
+Load no skills: other plugins' workflow skills (for example `superpowers:*`) conflict with usta.

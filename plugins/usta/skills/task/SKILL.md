@@ -18,7 +18,9 @@ spawning a fresh one, so it does not re-read the code.
 Request: $ARGUMENTS
 
 ## 0. Setup (paths and project layers)
-- State script: `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs` (run it from the project root).
+- State script: `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs` (run it from the root of the repo the
+  task changes). Always pass `--session ${CLAUDE_SESSION_ID}` to `start`, `show` and `clear`: the task gate
+  belongs to this session only.
 - Routing: read `.claude/routing.json` if the project has one, otherwise `${CLAUDE_PLUGIN_ROOT}/routing.json`.
 - Project config (optional): `.claude/usta.json`. Its `skills` array lists the project's own
   skills (for example `usta:react-standards` or the project's `fsd-rules`). Tell every analyzer,
@@ -28,6 +30,8 @@ Request: $ARGUMENTS
 - Docs rules: load the `usta:project-docs` skill now. Everything is written while you work, not at
   the end: if the session stops, docs/ must show the true state.
 - Project rules always win over the plugin's defaults.
+- Other workflows: do not load other plugins' process skills (for example `superpowers:*`, brainstorming
+  or plan-writing skills) and do not let agents load them; usta's phases and docs templates replace them.
 - Agents are `usta:<role>` (for example `usta:coder`).
 
 ## 1. Triage
@@ -37,7 +41,7 @@ never lower it. If `needs_clarification` is true, ask the human those questions 
 wait. Tell the human the level, the reason and which phases will run, in two lines.
 
 ## 2. Register the task
-Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --task-id <short-slug> --level <level> --title "<the request in a few words, in the human's language>"`
+Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <short-slug> --level <level> --title "<the request in a few words, in the human's language>"`
 (add `--auto-approve` for levels whose routing has `require_approval: false`).
 If the level has a plan phase, the task folder is `docs/plans/<YYYY-MM-DD>-<short-slug>/`.
 
@@ -113,5 +117,5 @@ Skip what does not apply. Never duplicate an existing entry: update it.
 ## 5. Report
 Level and models used, what changed (files), test results, review and security verdicts, remaining risks,
 the docs files written, and a suggested commit message. Then run
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs clear` so the next request starts from triage again.
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs clear --session ${CLAUDE_SESSION_ID}` so the next request starts from triage again.
 Do not commit or push; the human does that.

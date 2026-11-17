@@ -5,7 +5,7 @@ import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { emit, enterBrainstormIfNext, enterPhase, ROLE_PHASE, settlePhase } from "./events.mjs";
-import { projectDir, readTask, routingPath } from "./task-state.mjs";
+import { findTaskProject, projectDir, readTask, routingPath } from "./task-state.mjs";
 
 /** USD per million tokens. An estimate for the dashboard, not a bill; unknown models count as 0. */
 const PRICES = {
@@ -77,10 +77,13 @@ function routed(project, role, level) {
   return routing.levels[level]?.agents?.[role] ?? { model: routing.orchestrator_model, effort: "–" };
 }
 
-export function record(payload, project) {
+export function record(payload, sessionProject) {
   const role = (payload.agent_type ?? "").replace(/^usta:/, "");
   const phase = ROLE_PHASE[role];
-  const task = readTask(project);
+  // The task's project (it may be a nested repo the state script ran in) gets the events.
+  const home = findTaskProject([sessionProject, payload.cwd], payload.session_id);
+  const task = home && readTask(home, payload.session_id);
+  const project = home ?? sessionProject;
   if (!phase || (!task && role !== "triage")) return;
 
   if (payload.hook_event_name === "SubagentStart") {
