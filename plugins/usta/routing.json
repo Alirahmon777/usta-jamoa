@@ -9,7 +9,7 @@
   "triage_model": "sonnet",
   "explore_model": "haiku",
   "risk_floor": {
-    "_comment": "If triage flags any of these risk areas, complexity is raised to at least this level.",
+    "_comment": "If triage flags any of these risk areas, complexity is raised to at least this level (task-state.mjs start --risks applies it).",
     "areas": [
       "auth",
       "payments",
@@ -21,6 +21,25 @@
       "concurrency"
     ],
     "min_level": "complex"
+  },
+  "task_type_floor": {
+    "_comment": "Triage's task_type raises the level to at least this one. Porting code from another framework or system is never a small fix.",
+    "migration": "moderate"
+  },
+  "plan_floor": {
+    "_comment": "Checked by task-state.mjs when the plan is registered (start --plan): a plan bigger than triage expected raises the level. A rule applies when the plan's parallel map has at least `parts` parts or at least `files` file entries. Any part marked 'worktree: ha' also raises the level to the first level in parallel.levels.",
+    "rules": [
+      {
+        "level": "moderate",
+        "parts": 2,
+        "files": 8
+      },
+      {
+        "level": "complex",
+        "parts": 4,
+        "files": 20
+      }
+    ]
   },
   "parallel": {
     "_comment": "Parallel coders in separate git worktrees. Used only when the planner splits the plan into independent subtasks with disjoint files; otherwise implementation runs sequentially in the main tree.",
@@ -60,6 +79,7 @@
         "brainstorm",
         "plan",
         "implement",
+        "simplify",
         "test",
         "review"
       ],
@@ -74,6 +94,10 @@
         "coder": {
           "model": "sonnet",
           "effort": "medium"
+        },
+        "simplifier": {
+          "model": "sonnet",
+          "effort": "low"
         },
         "tester": {
           "model": "sonnet",
