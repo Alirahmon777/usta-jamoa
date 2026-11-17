@@ -28,7 +28,7 @@ export function TaskOverview({ snapshot, lastEventAt }: TaskOverviewProps) {
     <section className={`${styles.root} js-panel`}>
       <div className={styles.head}>
         <div>
-          <p className={styles.path}>docs/plans/{task?.id ?? "…"}</p>
+          <p className={styles.path}>{task ? `docs/plans/${task.id}` : "terminalda /usta:task <so'rov> yozing"}</p>
           <h1 className={styles.title}>{task?.title ?? "Task kutilmoqda"}</h1>
         </div>
         <dl className={styles.stats}>

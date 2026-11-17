@@ -21,7 +21,8 @@ export function DashboardPage() {
   const root = useRef<HTMLDivElement>(null);
   const { events, isLive, isReplaying, error, replay } = useEventStream();
   const snapshot = useMemo(() => buildSnapshot(events), [events]);
-  const lastEventAt = events.at(-1)?.ts;
+  // Running work is timed to now in live mode (the 2s poll re-renders), to the last event in a replay.
+  const lastEventAt = isLive ? new Date().toISOString() : events.at(-1)?.ts;
 
   useGSAP(
     () => {
