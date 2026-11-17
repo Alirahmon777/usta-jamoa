@@ -1,0 +1,29 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.aside {
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 12px;
+}

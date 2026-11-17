@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="site/public/logo.svg">
+    <img src="site/public/logo-light.svg" alt="usta" width="320">
+  </picture>
+</p>
+
 # usta: Claude Code uchun multi-agent dasturlash jamoasi (plugin)
 
 Bir marta o'rnatiladi va hamma loyihada ishlaydi. Har bir so'rov shu yo'ldan o'tadi:

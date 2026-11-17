@@ -1,0 +1,14 @@
+.root {
+  padding-block: clamp(80px, 14vh, 160px);
+}
+
+.text {
+  font-size: clamp(40px, 7.4vw, 120px);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.text em {
+  color: var(--accent);
+  font-style: normal;
+}

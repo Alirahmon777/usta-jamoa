@@ -1,0 +1,50 @@
+.pill {
+  --tone: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.icon {
+  color: var(--tone);
+  font-size: 10px;
+}
+
+.pill[data-status="ok"] {
+  --tone: var(--good);
+}
+
+.pill[data-status="running"] {
+  --tone: var(--accent);
+}
+
+.pill[data-status="running"] .icon {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+.pill[data-status="failed"] {
+  --tone: var(--critical);
+}
+
+.pill[data-status="waiting"] {
+  --tone: var(--warning);
+}
+
+.pill[data-status="pending"],
+.pill[data-status="skipped"] {
+  --tone: var(--dim);
+  color: var(--muted);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}

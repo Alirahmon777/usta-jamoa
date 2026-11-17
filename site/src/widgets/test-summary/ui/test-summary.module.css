@@ -1,0 +1,63 @@
+.hero {
+  font-size: 64px;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero span {
+  color: var(--dim);
+  font-size: 0.45em;
+  letter-spacing: -0.02em;
+}
+
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar span {
+  flex-basis: 0;
+  border-radius: 4px;
+}
+
+:is(.bar, .legend) > [data-kind="passed"] {
+  --tone: var(--good);
+}
+
+:is(.bar, .legend) > [data-kind="failed"] {
+  --tone: var(--critical);
+}
+
+:is(.bar, .legend) > [data-kind="skipped"] {
+  --tone: var(--dim);
+}
+
+.bar span {
+  background: var(--tone);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.icon {
+  margin-right: 5px;
+  color: var(--tone);
+}
+
+.empty {
+  color: var(--dim);
+  font-size: 14px;
+}
