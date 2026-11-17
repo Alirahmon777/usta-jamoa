@@ -39,7 +39,17 @@ export type AgentEvent = EventBase &
         part?: string;
         worktree?: string;
       }
-    | { type: "agent.finished"; id: string; status: "ok" | "failed"; tokens: number; costUsd: number; summary?: string }
+    | {
+        type: "agent.finished";
+        id: string;
+        status: "ok" | "failed";
+        tokens: number;
+        costUsd: number;
+        summary?: string;
+        /** The model and effort the agent really ran with, when they differ from what routing planned. */
+        model?: ModelAlias;
+        effort?: string;
+      }
     | {
         type: "plan.part";
         part: string;

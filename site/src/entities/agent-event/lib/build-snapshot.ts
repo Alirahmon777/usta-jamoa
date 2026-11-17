@@ -13,6 +13,13 @@ const setPhase = (snapshot: TaskSnapshot, phase: Phase, status: PhaseStatus) => 
   snapshot.phases = snapshot.phases.map((item) => (item.phase === phase ? { ...item, status } : item));
 };
 
+/** Phases outside the task's level are skipped. Triage runs before the task is registered, so moved phases stay. */
+const planPhases = (current: TaskSnapshot["phases"], planned: Phase[]) =>
+  current.map(({ phase, status }) => {
+    if (status !== "pending") return { phase, status };
+    return { phase, status: planned.includes(phase) ? status : ("skipped" as const) };
+  });
+
 const upsertPart = (parts: PlanPart[], next: PlanPart) => {
   const others = parts.filter((part) => part.part !== next.part);
   return [...others, next].sort((a, b) => a.part.localeCompare(b.part));
@@ -35,10 +42,7 @@ export function buildSnapshot(events: AgentEvent[]): TaskSnapshot {
           startedAt: event.ts,
           status: "running"
         };
-        snapshot.phases = ALL_PHASES.map((phase) => ({
-          phase,
-          status: event.phases.includes(phase) ? "pending" : "skipped"
-        }));
+        snapshot.phases = planPhases(snapshot.phases, event.phases);
         break;
       case "phase.started":
         setPhase(snapshot, event.phase, "active");
@@ -58,7 +62,9 @@ export function buildSnapshot(events: AgentEvent[]): TaskSnapshot {
           finishedAt: event.ts,
           tokens: event.tokens,
           costUsd: event.costUsd,
-          summary: event.summary
+          summary: event.summary,
+          ...(event.model && { model: event.model }),
+          ...(event.effort && { effort: event.effort })
         });
         break;
       case "plan.part":

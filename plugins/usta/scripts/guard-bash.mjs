@@ -24,7 +24,7 @@ const DURING_TASK = [
   [/\b(npm|pnpm|yarn)\s+publish\b/i, "publishing packages needs a human"],
 ];
 // Running the state script is allowed, but only as a single plain command.
-const ALLOWED = /^\s*node\s+"?[^"\s]*task-state\.mjs"?\s+(start|show|clear)\b/;
+const ALLOWED = /^\s*node\s+"?[^"\s]*task-state\.mjs"?\s+(start|show|clear|event)\b/;
 
 function taskActive(projectDir) {
   try {

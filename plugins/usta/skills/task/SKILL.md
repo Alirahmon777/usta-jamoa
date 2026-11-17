@@ -37,7 +37,7 @@ never lower it. If `needs_clarification` is true, ask the human those questions 
 wait. Tell the human the level, the reason and which phases will run, in two lines.
 
 ## 2. Register the task
-Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --task-id <short-slug> --level <level>`
+Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --task-id <short-slug> --level <level> --title "<the request in a few words, in the human's language>"`
 (add `--auto-approve` for levels whose routing has `require_approval: false`).
 If the level has a plan phase, the task folder is `docs/plans/<YYYY-MM-DD>-<short-slug>/`.
 
@@ -85,6 +85,13 @@ For every Agent call, pass `model` = the alias in `levels.<level>.agents.<role>.
 - review -> `reviewer`; security -> `security-reviewer` (run these two in parallel).
 - Feedback loop: if tests fail or any verdict is CHANGES_REQUESTED, send the exact findings to the same
   `coder`, then rerun test and review. Stop after `max_review_rounds` rounds and report what is still open.
+
+Live dashboard (`/usta:dashboard`): hooks record agents and phases by themselves. Record the three
+things only you know with `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs event '<json>'`, one call per event:
+- after the plan, one per part: `{"type":"plan.part","part":"A","title":"...","files":["..."],"dependsOn":[],"worktree":false,"status":"pending"}`
+  (send it again with `"status":"in_progress"` / `"done"` as the part moves);
+- after the tester: `{"type":"tests","passed":N,"failed":N,"skipped":N,"durationMs":N}`;
+- after each review, one per finding: `{"type":"finding","source":"reviewer","severity":"major","principle":"KISS","file":"path:line","message":"..."}`.
 
 For a quick file lookup, use the built-in `Explore` agent with `model` = `explore_model` instead of
 reading many files yourself.
