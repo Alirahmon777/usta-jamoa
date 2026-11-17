@@ -1,4 +1,4 @@
-import type { AgentEvent, AgentRun } from "@/entities/agent-event";
+import type { AgentEvent, AgentRun, TaskSnapshot } from "@/entities/agent-event";
 
 import { OFFICE_AGENTS } from "../model/constants";
 import type { Activity, AgentRole, OfficeAgentState } from "../model/types";
@@ -17,14 +17,16 @@ const pickActivity = (role: AgentRole, isRunning: boolean, reporter: string | un
   return "idle";
 };
 
-export function getOfficeState(events: AgentEvent[], agents: AgentRun[]): OfficeAgentState[] {
-  const running = agents.filter((agent) => agent.status === "running");
-  const reporter = findReporter(events, agents);
+export function getOfficeState(events: AgentEvent[], snapshot: TaskSnapshot): OfficeAgentState[] {
+  const running = snapshot.agents.filter((agent) => agent.status === "running");
+  const reporter = findReporter(events, snapshot.agents);
   const isReporterBusy = running.some((agent) => agent.agent === reporter);
   const talker = isReporterBusy ? undefined : reporter;
+  const isAsking = snapshot.approval === "waiting";
 
   return ROLES.map((role) => {
     const runs = running.filter((agent) => agent.agent === role).length;
+    if (isAsking && role === "orchestrator") return { role, activity: "asking", runs };
     return { role, activity: pickActivity(role, runs > 0, talker), runs };
   });
 }

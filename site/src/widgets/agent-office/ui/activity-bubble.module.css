@@ -136,6 +136,32 @@
   animation: scribble 0.5s ease-in-out infinite alternate;
 }
 
+.alert {
+  position: absolute;
+  bottom: calc(100% + 0.8cqw);
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 2.6cqw;
+  height: 2.6cqw;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgb(255 106 43 / 0.6);
+  color: var(--accent-ink);
+  font-size: 1.6cqw;
+  font-weight: 800;
+  translate: -50% 0;
+  animation:
+    pop 0.35s var(--ease) both,
+    beacon 1.4s ease-out infinite 0.35s;
+}
+
+@keyframes beacon {
+  to {
+    box-shadow: 0 0 0 1.8cqw rgb(255 106 43 / 0);
+  }
+}
+
 @keyframes pop {
   from {
     opacity: 0;
@@ -190,6 +216,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bubble,
+  .alert,
   .dot,
   .code > span,
   .line,

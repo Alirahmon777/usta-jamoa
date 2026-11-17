@@ -8,6 +8,14 @@ interface ActivityBubbleProps {
 export function ActivityBubble({ activity }: ActivityBubbleProps) {
   if (activity === "idle") return null;
 
+  if (activity === "asking") {
+    return (
+      <span className={styles.alert} aria-hidden="true">
+        !
+      </span>
+    );
+  }
+
   if (activity === "coding") {
     return (
       <span className={styles.code} aria-hidden="true">

@@ -85,7 +85,7 @@ export function DashboardPage() {
         </div>
         {view === "office" ? (
           <div className={styles.full}>
-            <AgentOffice events={events} agents={snapshot.agents} />
+            <AgentOffice events={events} snapshot={snapshot} />
           </div>
         ) : (
           <>

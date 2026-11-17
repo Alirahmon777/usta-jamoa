@@ -1,0 +1,13 @@
+.prop {
+  position: absolute;
+  max-width: none;
+  translate: -50% -100%;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 6px 8px rgb(0 0 0 / 0.35));
+  transition: opacity 0.3s;
+}
+
+.prop[data-occupied="true"] {
+  opacity: 0;
+}

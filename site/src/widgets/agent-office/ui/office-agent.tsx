@@ -24,14 +24,19 @@ export function OfficeAgent({ agent }: OfficeAgentProps) {
       const element = root.current;
       if (!element || !contextSafe) return;
 
-      gsap.killTweensOf(element);
-      element.dataset.pose = "stand";
-      const target = getTargetSpot(role, activity);
+      const desk = element.parentElement?.querySelector<HTMLElement>(`[data-desk="${role}"]`);
+      const sit = (isSeated: boolean) => {
+        element.dataset.pose = isSeated ? "desk" : "stand";
+        if (desk) desk.dataset.occupied = String(isSeated);
+      };
 
+      gsap.killTweensOf(element);
+      sit(false);
+      const target = getTargetSpot(role, activity);
       const facing = getArrivalFacing(role, activity);
       const arrive = () => {
-        if (activity === "coding") element.dataset.pose = "desk";
         if (facing) element.dataset.facing = facing;
+        if (activity === "coding") sit(true);
       };
 
       const roam = contextSafe(() => {

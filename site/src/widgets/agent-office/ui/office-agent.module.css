@@ -2,13 +2,22 @@
   position: absolute;
   width: 6.6cqw;
   height: 10.5cqw;
-  transform: translate(-50%, -100%);
+  translate: -50% -100%;
   user-select: none;
+}
+
+.agent[data-activity="asking"] {
+  z-index: 300 !important;
+}
+
+.agent:hover {
+  z-index: 350 !important;
 }
 
 .body {
   position: absolute;
   inset: 0;
+  transform-origin: bottom center;
   transition: transform 0.25s var(--ease);
 }
 
@@ -16,21 +25,22 @@
   transform: scaleX(-1);
 }
 
-.agent[data-walking="true"] .body {
-  animation: step 0.42s ease-in-out infinite;
-}
-
 .agent::before {
   position: absolute;
-  bottom: -4px;
+  bottom: -0.3cqw;
   left: 50%;
   width: 70%;
-  height: 10px;
+  height: 0.9cqw;
   border-radius: 50%;
   background: rgb(0 0 0 / 0.45);
   content: "";
   filter: blur(3px);
-  transform: translateX(-50%);
+  translate: -50% 0;
+  transition: width 0.3s;
+}
+
+.agent[data-walking="true"]::before {
+  animation: shadow 0.44s ease-in-out infinite;
 }
 
 .stand,
@@ -39,25 +49,38 @@
   bottom: 0;
   left: 50%;
   max-width: none;
-  transform: translateX(-50%);
-  transition: opacity 0.3s;
+  translate: -50% 0;
+  transform-origin: bottom center;
+  transition:
+    opacity 0.35s,
+    transform 0.45s var(--ease);
 }
 
 .stand {
   height: 100%;
+  animation: breathe 3.6s ease-in-out infinite;
 }
 
 .desk {
-  height: 98%;
+  height: 95%;
   opacity: 0;
+  transform: translateY(6%) scale(0.96);
+}
+
+.agent[data-walking="true"] .stand {
+  animation: waddle 0.44s ease-in-out infinite;
 }
 
 .agent[data-pose="desk"] .stand {
   opacity: 0;
+  transform: translateY(8%) scaleY(0.82);
+  animation: none;
 }
 
 .agent[data-pose="desk"] .desk {
   opacity: 1;
+  transform: none;
+  animation: typing 0.35s steps(2) infinite 0.5s;
 }
 
 .agent[data-pose="desk"]::before {
@@ -69,13 +92,24 @@
 }
 
 .agent[data-activity="thinking"][data-walking="false"] .stand {
-  animation: look-up 3s ease-in-out infinite;
-  transform-origin: bottom center;
+  animation: look-up 3.2s ease-in-out infinite;
+}
+
+.agent[data-activity="talking"][data-walking="false"] .stand {
+  animation: gesture 1.1s ease-in-out infinite;
+}
+
+.agent[data-activity="planning"][data-walking="false"] .stand {
+  animation: nod 1.6s ease-in-out infinite;
+}
+
+.agent[data-activity="asking"][data-walking="false"] .stand {
+  animation: hop 0.9s var(--ease) infinite;
 }
 
 .tag {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 0.6cqw);
   left: 50%;
   display: inline-flex;
   align-items: center;
@@ -88,8 +122,12 @@
   font-family: var(--mono);
   font-size: 11px;
   white-space: nowrap;
-  transform: translateX(-50%);
+  translate: -50% 0;
   backdrop-filter: blur(6px);
+}
+
+.agent[data-activity="idle"] .tag {
+  opacity: 0.7;
 }
 
 .swatch {
@@ -113,25 +151,105 @@
   display: inline;
 }
 
-.agent:hover {
-  z-index: 200 !important;
+.agent[data-activity="asking"] .tag {
+  border-color: rgb(255 106 43 / 0.6);
 }
 
-@keyframes step {
+.agent[data-activity="asking"] .status {
+  color: var(--accent);
+}
+
+@keyframes breathe {
   50% {
-    translate: 0 -4px;
+    transform: scaleY(1.018) scaleX(0.992);
+  }
+}
+
+@keyframes waddle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+
+  25% {
+    transform: translateY(-5%) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(0) rotate(4deg);
+  }
+
+  75% {
+    transform: translateY(-5%) rotate(0deg);
+  }
+}
+
+@keyframes shadow {
+  25%,
+  75% {
+    width: 55%;
+  }
+}
+
+@keyframes typing {
+  50% {
+    transform: translateY(-0.6%);
   }
 }
 
 @keyframes look-up {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  40%,
+  70% {
+    transform: rotate(-3deg) translateY(-1%);
+  }
+}
+
+@keyframes gesture {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+
+  30% {
+    transform: rotate(2.5deg) scaleY(1.02);
+  }
+
+  60% {
+    transform: rotate(-1.5deg) scaleY(0.99);
+  }
+}
+
+@keyframes nod {
   50% {
-    transform: translateX(-50%) rotate(-2deg);
+    transform: translateY(1.5%) rotate(1.5deg);
+  }
+}
+
+@keyframes hop {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  10% {
+    transform: translateY(0) scaleY(0.94);
+  }
+
+  30% {
+    transform: translateY(-10%) scaleY(1.04);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .agent[data-walking="true"] .body,
-  .agent[data-activity="thinking"][data-walking="false"] .stand {
-    animation: none;
+  .agent .stand,
+  .agent .desk,
+  .agent::before {
+    animation: none !important;
   }
 }
