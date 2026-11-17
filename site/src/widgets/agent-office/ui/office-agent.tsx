@@ -20,9 +20,9 @@ export function OfficeAgent({ agent }: OfficeAgentProps) {
   const home = useRef(getHomeSpot(role)).current;
 
   useGSAP(
-    (_context, contextSafe) => {
+    () => {
       const element = root.current;
-      if (!element || !contextSafe) return;
+      if (!element) return;
 
       const desk = element.parentElement?.querySelector<HTMLElement>(`[data-desk="${role}"]`);
       const sit = (isSeated: boolean) => {
@@ -39,11 +39,11 @@ export function OfficeAgent({ agent }: OfficeAgentProps) {
         if (activity === "coding") sit(true);
       };
 
-      const roam = contextSafe(() => {
+      const roam = () => {
         walkTo(element, getRandomLoungeSpot(), () => {
           gsap.to(element, { duration: gsap.utils.random(1.5, 5), onComplete: roam });
         });
-      });
+      };
 
       const mm = gsap.matchMedia();
       mm.add(MOTION_OK, () => {
