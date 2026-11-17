@@ -1,0 +1,55 @@
+.list {
+  display: grid;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  overscroll-behavior: contain;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 64px 128px minmax(0, 1fr);
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.row:first-child {
+  border-top: 0;
+  animation: flash 1.2s var(--ease);
+}
+
+.time {
+  color: var(--dim);
+}
+
+.type {
+  color: var(--accent);
+}
+
+.text {
+  overflow: hidden;
+  color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@keyframes flash {
+  from {
+    background: rgb(255 106 43 / 0.12);
+  }
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .type {
+    display: none;
+  }
+}

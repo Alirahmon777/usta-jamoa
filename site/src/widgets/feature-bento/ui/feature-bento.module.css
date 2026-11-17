@@ -1,0 +1,105 @@
+.root {
+  padding-block: clamp(96px, 16vh, 180px);
+}
+
+.head {
+  display: grid;
+  gap: 20px;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.title {
+  max-width: 11ch;
+  font-size: clamp(48px, 8vw, 128px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    "approval approval approval approval routing routing"
+    "approval approval approval approval worktrees worktrees"
+    "docs docs docs guards guards guards"
+    "principles principles brainstorm brainstorm audit audit";
+  gap: 14px;
+}
+
+.card {
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 300px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(420px circle at var(--mx) var(--my), rgb(255 255 255 / 0.05), transparent 60%),
+    linear-gradient(180deg, var(--surface-2), var(--surface) 70%);
+  overflow: hidden;
+  transition: border-color 0.3s var(--ease), transform 0.4s var(--ease);
+}
+
+.featured {
+  background:
+    radial-gradient(420px circle at var(--mx) var(--my), rgb(255 255 255 / 0.05), transparent 60%),
+    radial-gradient(700px circle at 50% 120%, rgb(255 106 43 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--surface-2), var(--surface) 70%);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+}
+
+.visual {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.copy {
+  display: grid;
+  gap: 6px;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.cardText {
+  max-width: 46ch;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "approval approval"
+      "routing worktrees"
+      "docs docs"
+      "guards guards"
+      "principles brainstorm"
+      "audit audit";
+  }
+}
+
+@media (max-width: 620px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: "approval" "routing" "worktrees" "docs" "guards" "principles" "brainstorm" "audit";
+  }
+
+  .card {
+    min-height: 0;
+  }
+}

@@ -1,0 +1,59 @@
+{"ts": "2026-11-17T14:02:00Z", "type": "task.started", "task": "2026-11-17-promo-kod", "title": "Savatga promo-kod chegirmasi", "level": "complex", "phases": ["triage", "analyze", "brainstorm", "plan", "approve", "implement", "simplify", "test", "review"]}
+{"ts": "2026-11-17T14:02:01Z", "type": "phase.started", "phase": "triage"}
+{"ts": "2026-11-17T14:02:02Z", "type": "agent.started", "id": "triage", "agent": "triage", "model": "sonnet", "effort": "low", "phase": "triage"}
+{"ts": "2026-11-17T14:02:16Z", "type": "agent.finished", "id": "triage", "status": "ok", "tokens": 6200, "costUsd": 0.03, "summary": "complex · xavf: payments"}
+{"ts": "2026-11-17T14:02:16Z", "type": "phase.finished", "phase": "triage", "status": "ok"}
+{"ts": "2026-11-17T14:02:17Z", "type": "phase.started", "phase": "analyze"}
+{"ts": "2026-11-17T14:02:18Z", "type": "agent.started", "id": "analyzer", "agent": "analyzer", "model": "haiku", "effort": "medium", "phase": "analyze"}
+{"ts": "2026-11-17T14:03:10Z", "type": "agent.finished", "id": "analyzer", "status": "ok", "tokens": 48100, "costUsd": 0.06, "summary": "12 fayl, 3 modul, 2 mavjud pattern"}
+{"ts": "2026-11-17T14:03:10Z", "type": "phase.finished", "phase": "analyze", "status": "ok"}
+{"ts": "2026-11-17T14:03:11Z", "type": "phase.started", "phase": "brainstorm"}
+{"ts": "2026-11-17T14:03:13Z", "type": "agent.started", "id": "orchestrator-brainstorm", "agent": "orchestrator", "model": "opus", "effort": "high", "phase": "brainstorm"}
+{"ts": "2026-11-17T14:04:18Z", "type": "agent.finished", "id": "orchestrator-brainstorm", "status": "ok", "tokens": 21400, "costUsd": 0.41, "summary": "2 yondashuv, 3 savol · tavsiya: B (serverda hisoblash)"}
+{"ts": "2026-11-17T14:04:18Z", "type": "phase.finished", "phase": "brainstorm", "status": "ok"}
+{"ts": "2026-11-17T14:04:58Z", "type": "phase.started", "phase": "plan"}
+{"ts": "2026-11-17T14:04:59Z", "type": "agent.started", "id": "planner", "agent": "planner", "model": "opus", "effort": "high", "phase": "plan"}
+{"ts": "2026-11-17T14:05:57Z", "type": "plan.part", "part": "A", "title": "API: promo-kod tekshiruvi va narx hisoblash", "files": ["src/entities/promo/api/apply-promo.ts", "src/entities/promo/model/schemas.ts"], "dependsOn": [], "worktree": true, "status": "pending"}
+{"ts": "2026-11-17T14:05:57Z", "type": "plan.part", "part": "B", "title": "Savat UI: promo-kod input va chegirma qatori", "files": ["src/features/apply-promo/ui/promo-input.tsx", "src/widgets/cart-summary/ui/cart-summary.tsx"], "dependsOn": [], "worktree": true, "status": "pending"}
+{"ts": "2026-11-17T14:05:57Z", "type": "plan.part", "part": "C", "title": "Integratsiya va e2e testlar", "files": ["src/pages/cart/ui/cart-page.tsx", "e2e/promo.spec.ts"], "dependsOn": ["A", "B"], "worktree": false, "status": "pending"}
+{"ts": "2026-11-17T14:05:58Z", "type": "agent.finished", "id": "planner", "status": "ok", "tokens": 33800, "costUsd": 0.62, "summary": "plan.md · 3 qism, 2 tasi parallel"}
+{"ts": "2026-11-17T14:05:58Z", "type": "phase.finished", "phase": "plan", "status": "ok"}
+{"ts": "2026-11-17T14:05:59Z", "type": "phase.started", "phase": "approve"}
+{"ts": "2026-11-17T14:05:59Z", "type": "approval.waiting"}
+{"ts": "2026-11-17T14:07:34Z", "type": "approval.granted", "by": "human"}
+{"ts": "2026-11-17T14:07:34Z", "type": "phase.finished", "phase": "approve", "status": "ok"}
+{"ts": "2026-11-17T14:07:35Z", "type": "phase.started", "phase": "implement"}
+{"ts": "2026-11-17T14:07:36Z", "type": "agent.started", "id": "coder-a", "agent": "coder", "model": "sonnet", "effort": "medium", "phase": "implement", "part": "A", "worktree": "wt/promo-api"}
+{"ts": "2026-11-17T14:07:36Z", "type": "plan.part", "part": "A", "title": "API: promo-kod tekshiruvi va narx hisoblash", "files": ["src/entities/promo/api/apply-promo.ts", "src/entities/promo/model/schemas.ts"], "dependsOn": [], "worktree": true, "status": "in_progress"}
+{"ts": "2026-11-17T14:07:37Z", "type": "agent.started", "id": "coder-b", "agent": "coder", "model": "sonnet", "effort": "medium", "phase": "implement", "part": "B", "worktree": "wt/cart-ui"}
+{"ts": "2026-11-17T14:07:37Z", "type": "plan.part", "part": "B", "title": "Savat UI: promo-kod input va chegirma qatori", "files": ["src/features/apply-promo/ui/promo-input.tsx", "src/widgets/cart-summary/ui/cart-summary.tsx"], "dependsOn": [], "worktree": true, "status": "in_progress"}
+{"ts": "2026-11-17T14:09:57Z", "type": "agent.finished", "id": "coder-a", "status": "ok", "tokens": 72300, "costUsd": 0.48, "summary": "applyPromo + Zod schema, 2 fayl"}
+{"ts": "2026-11-17T14:09:57Z", "type": "plan.part", "part": "A", "title": "API: promo-kod tekshiruvi va narx hisoblash", "files": ["src/entities/promo/api/apply-promo.ts", "src/entities/promo/model/schemas.ts"], "dependsOn": [], "worktree": true, "status": "done"}
+{"ts": "2026-11-17T14:10:35Z", "type": "agent.finished", "id": "coder-b", "status": "ok", "tokens": 64900, "costUsd": 0.43, "summary": "PromoInput, CartSummary chegirma qatori"}
+{"ts": "2026-11-17T14:10:35Z", "type": "plan.part", "part": "B", "title": "Savat UI: promo-kod input va chegirma qatori", "files": ["src/features/apply-promo/ui/promo-input.tsx", "src/widgets/cart-summary/ui/cart-summary.tsx"], "dependsOn": [], "worktree": true, "status": "done"}
+{"ts": "2026-11-17T14:10:37Z", "type": "agent.started", "id": "coder-c", "agent": "coder", "model": "sonnet", "effort": "medium", "phase": "implement", "part": "C"}
+{"ts": "2026-11-17T14:10:37Z", "type": "plan.part", "part": "C", "title": "Integratsiya va e2e testlar", "files": ["src/pages/cart/ui/cart-page.tsx", "e2e/promo.spec.ts"], "dependsOn": ["A", "B"], "worktree": false, "status": "in_progress"}
+{"ts": "2026-11-17T14:12:13Z", "type": "agent.finished", "id": "coder-c", "status": "ok", "tokens": 41200, "costUsd": 0.29, "summary": "worktree'lar birlashtirildi, sahifa ulandi"}
+{"ts": "2026-11-17T14:12:13Z", "type": "plan.part", "part": "C", "title": "Integratsiya va e2e testlar", "files": ["src/pages/cart/ui/cart-page.tsx", "e2e/promo.spec.ts"], "dependsOn": ["A", "B"], "worktree": false, "status": "done"}
+{"ts": "2026-11-17T14:12:13Z", "type": "phase.finished", "phase": "implement", "status": "ok"}
+{"ts": "2026-11-17T14:12:14Z", "type": "phase.started", "phase": "simplify"}
+{"ts": "2026-11-17T14:12:15Z", "type": "agent.started", "id": "simplifier", "agent": "simplifier", "model": "sonnet", "effort": "medium", "phase": "simplify"}
+{"ts": "2026-11-17T14:12:59Z", "type": "agent.finished", "id": "simplifier", "status": "ok", "tokens": 18700, "costUsd": 0.12, "summary": "PromoValidator interfeysi olib tashlandi (bitta implementatsiya)"}
+{"ts": "2026-11-17T14:12:59Z", "type": "phase.finished", "phase": "simplify", "status": "ok"}
+{"ts": "2026-11-17T14:13:00Z", "type": "phase.started", "phase": "test"}
+{"ts": "2026-11-17T14:13:01Z", "type": "agent.started", "id": "tester", "agent": "tester", "model": "sonnet", "effort": "low", "phase": "test"}
+{"ts": "2026-11-17T14:14:12Z", "type": "tests", "passed": 46, "failed": 0, "skipped": 2, "durationMs": 18400}
+{"ts": "2026-11-17T14:14:13Z", "type": "agent.finished", "id": "tester", "status": "ok", "tokens": 22600, "costUsd": 0.14, "summary": "46 o'tdi, 2 o'tkazib yuborildi"}
+{"ts": "2026-11-17T14:14:13Z", "type": "phase.finished", "phase": "test", "status": "ok"}
+{"ts": "2026-11-17T14:14:14Z", "type": "phase.started", "phase": "review"}
+{"ts": "2026-11-17T14:14:15Z", "type": "agent.started", "id": "reviewer", "agent": "reviewer", "model": "opus", "effort": "high", "phase": "review"}
+{"ts": "2026-11-17T14:14:15Z", "type": "agent.started", "id": "security", "agent": "security-reviewer", "model": "opus", "effort": "high", "phase": "review"}
+{"ts": "2026-11-17T14:15:03Z", "type": "finding", "source": "security-reviewer", "severity": "major", "principle": "Security", "file": "src/entities/promo/api/apply-promo.ts", "message": "Promo-kod tekshiruvida urinishlar soni cheklanmagan (brute force)"}
+{"ts": "2026-11-17T14:15:09Z", "type": "finding", "source": "reviewer", "severity": "minor", "principle": "KISS", "file": "src/features/apply-promo/ui/promo-input.tsx", "message": "useEffect orqali sinxronlash shart emas, qiymatni render paytida hisoblash yetadi"}
+{"ts": "2026-11-17T14:15:13Z", "type": "finding", "source": "reviewer", "severity": "nit", "principle": "Naming", "file": "src/widgets/cart-summary/ui/cart-summary.tsx", "message": "discountVal → discountAmount"}
+{"ts": "2026-11-17T14:15:23Z", "type": "agent.finished", "id": "security", "status": "ok", "tokens": 26400, "costUsd": 0.51, "summary": "1 major"}
+{"ts": "2026-11-17T14:15:26Z", "type": "agent.finished", "id": "reviewer", "status": "ok", "tokens": 38900, "costUsd": 0.68, "summary": "1 minor, 1 nit"}
+{"ts": "2026-11-17T14:15:28Z", "type": "agent.started", "id": "coder-fix", "agent": "coder", "model": "sonnet", "effort": "medium", "phase": "review", "part": "A"}
+{"ts": "2026-11-17T14:16:27Z", "type": "agent.finished", "id": "coder-fix", "status": "ok", "tokens": 15800, "costUsd": 0.11, "summary": "Rate limit qo'shildi, 2 ta topilma tuzatildi"}
+{"ts": "2026-11-17T14:16:28Z", "type": "phase.finished", "phase": "review", "status": "ok"}
+{"ts": "2026-11-17T14:16:29Z", "type": "task.finished", "status": "ok"}

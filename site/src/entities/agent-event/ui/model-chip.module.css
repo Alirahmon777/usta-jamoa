@@ -1,0 +1,31 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.swatch[data-model="sonnet"] {
+  background: var(--model-sonnet);
+}
+
+.swatch[data-model="opus"] {
+  background: var(--model-opus);
+}
+
+.swatch[data-model="haiku"] {
+  background: var(--model-haiku);
+}
+
+.effort {
+  color: var(--dim);
+}

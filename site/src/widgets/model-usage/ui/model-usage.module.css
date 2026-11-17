@@ -1,0 +1,70 @@
+.bar {
+  display: flex;
+  gap: 2px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.segment {
+  flex-basis: 0;
+  border-radius: 4px;
+  transition: flex-grow 0.6s var(--ease);
+}
+
+.segment[data-model="sonnet"],
+.swatch[data-model="sonnet"] {
+  background: var(--model-sonnet);
+}
+
+.segment[data-model="opus"],
+.swatch[data-model="opus"] {
+  background: var(--model-opus);
+}
+
+.segment[data-model="haiku"],
+.swatch[data-model="haiku"] {
+  background: var(--model-haiku);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  padding: 0 0 6px;
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.table td {
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: right;
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+
+.table td:first-child {
+  color: var(--text);
+}
+
+.swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 3px;
+}
