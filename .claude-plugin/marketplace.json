@@ -1,7 +1,7 @@
 {
   "name": "usta-jamoa",
   "description": "Multi-agent software engineering team for Claude Code",
-  "owner": { "name": "Iron Dev" },
+  "owner": { "name": "Alirahmon Nuraliyev" },
   "plugins": [
     {
       "name": "usta",
