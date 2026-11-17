@@ -1,6 +1,7 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 
+import { AgentOffice } from "@/widgets/agent-office";
 import { AgentRuns } from "@/widgets/agent-runs";
 import { EventLog } from "@/widgets/event-log";
 import { ModelUsage } from "@/widgets/model-usage";
@@ -15,10 +16,13 @@ import { ROUTES } from "@/shared/config";
 import { gsap, MOTION_OK, useGSAP } from "@/shared/lib";
 import { Logo } from "@/shared/ui";
 
+import { DASHBOARD_VIEW } from "../model/constants";
+import type { DashboardView } from "../model/types";
 import styles from "./dashboard-page.module.css";
 
 export function DashboardPage() {
   const root = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState<DashboardView>("panel");
   const { events, isLive, isReplaying, error, replay } = useEventStream();
   const snapshot = useMemo(() => buildSnapshot(events), [events]);
   // Running work is timed to now in live mode (the 2s poll re-renders), to the last event in a replay.
@@ -42,6 +46,20 @@ export function DashboardPage() {
         </Link>
         <span className={styles.sep}>/</span>
         <span className={styles.crumb}>dashboard</span>
+        <div className={styles.tabs} role="tablist" aria-label="Ko'rinish">
+          {Object.entries(DASHBOARD_VIEW).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              className={styles.tab}
+              onClick={() => setView(key as DashboardView)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <div className={styles.right}>
           <span className={styles.mode} data-live={isLive}>
             <span className={styles.modeDot} aria-hidden="true" />
@@ -65,18 +83,26 @@ export function DashboardPage() {
         <div className={styles.full}>
           <TaskOverview snapshot={snapshot} lastEventAt={lastEventAt} />
         </div>
-        <div className={styles.main}>
-          <AgentRuns agents={snapshot.agents} lastEventAt={lastEventAt} />
-          <ReviewFindings findings={snapshot.findings} />
-        </div>
-        <div className={styles.side}>
-          <PlanMap parts={snapshot.parts} />
-          <div className={styles.pair}>
-            <TestSummary tests={snapshot.tests} />
-            <ModelUsage agents={snapshot.agents} />
+        {view === "office" ? (
+          <div className={styles.full}>
+            <AgentOffice events={events} snapshot={snapshot} />
           </div>
-          <EventLog events={events} />
-        </div>
+        ) : (
+          <>
+            <div className={styles.main}>
+              <AgentRuns agents={snapshot.agents} lastEventAt={lastEventAt} />
+              <ReviewFindings findings={snapshot.findings} />
+            </div>
+            <div className={styles.side}>
+              <PlanMap parts={snapshot.parts} />
+              <div className={styles.pair}>
+                <TestSummary tests={snapshot.tests} />
+                <ModelUsage agents={snapshot.agents} />
+              </div>
+              <EventLog events={events} />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
