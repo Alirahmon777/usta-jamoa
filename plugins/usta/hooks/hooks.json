@@ -11,6 +11,15 @@
         ]
       },
       {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/agent-gate.mjs\""
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {
@@ -33,7 +42,7 @@
     ],
     "UserPromptExpansion": [
       {
-        "matcher": "usta:approve",
+        "matcher": "usta:approve|usta:budget",
         "hooks": [
           {
             "type": "command",

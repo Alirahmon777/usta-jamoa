@@ -44,12 +44,33 @@ GitHub'siz sinab ko'rish: `claude --plugin-dir ./plugins/usta`.
 | `/usta:init` | Loyihani tayyorlaydi: `docs/` shablonlari, `.claude/usta.json`, `.gitignore`, `CLAUDE.md` bo'limi. Mavjud faylni ustidan yozmaydi |
 | `/usta:task <so'rov>` | So'rovni butun jamoa orqali o'tkazadi |
 | `/usta:approve` | Rejani tasdiqlaydi. **Faqat siz** yoza olasiz: Claude bu buyruqni chaqira olmaydi, tasdiqni hook yozadi |
+| `/usta:budget` | Task daraja byudjetiga yetib to'xtaganda yana bitta daraja byudjetiga ruxsat beradi. Bu ham **faqat siz** uchun |
 | `/usta:resume [docs/plans/<papka>]` | Chala qolgan ishni yangi sessiyada HANDOFF.md dan davom ettiradi |
 | `/usta:audit [yo'l]` | Tayyor loyihani tekshiradi: buglar, hardcode'lar, xavfsizlik va yaxshilanishlarni `docs/known-issues/` ga yozadi. Kodni o'zgartirmaydi |
 | `/usta:dashboard` | Jonli dashboardni brauzerda ochadi: agentlar, bosqichlar, modellar, token va narx |
 
 Orkestrator `/task` davomida Opus'da ishlaydi. Har bir loyihada `init` qilish shart emas: u
 qilinmasa ham plugin shablonlari va standart routing bilan ishlaydi.
+
+## Daraja qanday tanlanadi
+
+Triage (sonnet) birinchi baho beradi, keyin `task-state.mjs` uni `routing.json` dagi chegaralar bilan
+tekshiradi. Daraja faqat ko'tariladi, hech qachon tushmaydi:
+
+- **Xavf hududi** (`risk_floor`): auth, payments, security va boshqalar kamida `complex`.
+- **Vazifa turi** (`task_type_floor`): migratsiya (masalan Vue'dan React'ga) kamida `moderate`.
+  Triage'ga butun ilova yoki bir nechta sahifa migratsiyasi `complex` ekani aytilgan.
+- **Reja hajmi** (`plan_floor`): reja tuzilgach parallel xarita o'lchanadi. 2+ qism yoki 8+ fayl
+  bo'lsa kamida `moderate`, 4+ qism yoki 20+ fayl bo'lsa kamida `complex`. Worktree'li qism bo'lsa,
+  daraja parallel ruxsat etilgan darajagacha ko'tariladi. Daraja ko'tarilsa, yangi darajaning tasdiq
+  bosqichi, modellari va byudjeti o'sha zahoti amal qiladi.
+
+Ikkita cheklovni hook majburlaydi: parallel worktree agentlari faqat `parallel.levels` dagi
+darajalarda ishlaydi, task agentlarining taxminiy narxi `max_budget_usd` ga yetganda yangi agent
+ishga tushmaydi va orkestrator sizdan `/usta:budget` yoki to'xtashni so'raydi.
+
+Soddalashtirish (simplifier) `trivial` dan boshqa hamma darajada ishlaydi; `simple` da sonnet bilan.
+Reviewer `simple` da sonnet, `moderate` dan boshlab opus.
 
 ## Brainstorming
 
@@ -133,7 +154,8 @@ Qoidalar ziddiyatga kelsa, ustunlik tartibi: loyiha qoidalari va skilllari, keyi
 | `require-approved-plan` | `.claude/state`, `settings`, `routing.json`, `usta.json` va plugin fayllarini agent o'zgartira olmaydi | Reja tasdiqlanmaguncha `Edit/Write` bloklanadi (`docs/` papkalaridan tashqari) |
 | `guard-bash` | `rm -rf /`, `reset --hard`, `DROP TABLE`, deploy, `.env` o'qish, `curl \| sh`, tasdiqni aylanib o'tish, workflow fayllarini o'zgartirish (`ls`, `cat`, `grep` kabi o'qish va dashboard serveri ruxsat) | `git push`, `npm publish` |
 | `lint-on-edit` | JS/TS fayl tahriridan keyin Biome yoki ESLint xatolarini agentga qaytaradi (loyihada bo'lsa) | |
-| `approve-hook` | Siz `/usta:approve` yozganingizda tasdiqni yozadi | |
+| `approve-hook` | Siz `/usta:approve` yoki `/usta:budget` yozganingizda tasdiq yoki yangi byudjetni yozadi | |
+| `agent-gate` | | Daraja ruxsat bermasa parallel worktree agentini, byudjet tugaganda yangi `usta:*` agentni bloklaydi |
 
 Agar `requireTask` ni hamma loyihada majburiy qilmoqchi bo'lmasangiz, uni faqat kerakli loyihalarda yoqing.
 
@@ -178,7 +200,7 @@ Plugin ichiga kiritilmadi: interaktiv ishni plugin to'liq qoplaydi. CI yoki skri
 plugins/usta/
   .claude-plugin/plugin.json
   agents/          8 ta agent: triage, analyzer, planner, coder, simplifier, tester, reviewer, security-reviewer
-  skills/          task, resume, approve, audit, init, dashboard (buyruqlar)
+  skills/          task, resume, approve, budget, audit, init, dashboard (buyruqlar)
                    engineering-standards, project-docs (agentlarga avtomatik yuklanadi)
                    react-standards (ixtiyoriy)
   hooks/hooks.json

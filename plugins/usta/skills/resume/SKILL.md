@@ -26,6 +26,7 @@ Tell the human, in a few lines: what is done, what is next, open questions from 
 ## 3. Register and approve
 Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <folder slug> --level <level> --plan <task folder>/plan.md`
 (add `--auto-approve` only for levels whose routing has `require_approval: false`).
+If it prints "Level raised", that level (and its routing) applies from now on; write it into plan.md.
 A new session needs a new approval: when `require_approval` is true, ask the human to type
 `/usta:approve`, or to reply with changes (send those to `planner`, which updates the same task
 folder). Never approve on the human's behalf. If the plan has open questions that block the next step,
