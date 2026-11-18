@@ -53,7 +53,10 @@ what is missing and report what you skipped. Work from the project root.
    - `requireTask: true` means source files cannot be edited outside `/usta:task`. Ask the
      human whether they want that (recommended) or `false` (the gate only applies while a task runs).
    - `skills`: the skills every agent loads before it starts. Look at the stack: if `package.json`
-     depends on `react`, propose `"usta:react-standards"`. If the project has its own skills in
+     depends on `react`, propose `"usta:react-standards"`. If stack rule packs are installed (skills
+     named `usta-<stack>:rules`, for example `usta-java:rules` or `usta-react-fsd:rules`), propose the
+     ones that match the stack. Integration packs (for example `usta-payme:*`) are not listed here:
+     they load only for tasks about them. If the project has its own skills in
      `.claude/skills/`, list them and ask which ones every agent should load. Write only what the human
      confirms.
 

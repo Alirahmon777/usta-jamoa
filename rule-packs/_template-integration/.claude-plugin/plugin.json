@@ -1,0 +1,8 @@
+{
+  "name": "usta-PROVIDER",
+  "version": "0.1.0",
+  "description": "PROVIDER integration rules and examples for the usta agents. Loaded only for tasks about PROVIDER.",
+  "author": { "name": "Alirahmon Nuraliyev" },
+  "license": "MIT",
+  "keywords": ["usta", "integration", "uzbekistan", "PROVIDER"]
+}

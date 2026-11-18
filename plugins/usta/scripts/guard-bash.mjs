@@ -2,9 +2,10 @@
 // PreToolUse hook: deny destructive or irreversible shell commands from agents.
 // ALWAYS applies in every session; DURING_TASK applies only while a /task is active,
 // because outside the workflow pushing and publishing are the user's own call.
+// A /usta:oyla task (mode "plan") allows only read-only commands: it plans and never builds.
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { findTaskProject } from "./task-state.mjs";
+import { findTaskProject, readTask } from "./task-state.mjs";
 
 const ALWAYS = [
   [/\brm\s+-[a-z]*r[a-z]*f?\s+(\/|~|\*|\.\s*$)/i, "recursive delete of a root, home or wildcard path"],
@@ -19,7 +20,7 @@ const ALWAYS = [
 ];
 // Workflow files: reading them (ls, cat, grep...) and running the dashboard is fine, changing them is not.
 const WORKFLOW_FILES = /\.claude[\\/](state|settings|routing\.json|usta\.json|plugins[\\/])/i;
-const READ_ONLY = /^\s*(cd|ls|cat|head|tail|less|grep|rg|find|stat|wc|jq|tree|file|echo|pwd)\b(?!.*\s-(delete|exec|execdir|ok|fprint)\b)/;
+const READ_ONLY = /^\s*(cd|ls|cat|head|tail|less|grep|rg|find|stat|wc|jq|tree|file|echo|pwd|git\s+(status|diff|log|show|blame|ls-files|grep|rev-parse))\b(?!.*\s-(delete|exec|execdir|ok|fprint|-output)\b)/;
 const DASHBOARD = /^\s*node\s+("[^"]*dashboard\.mjs"|[^"\s]*dashboard\.mjs)(\s+--[\w-]+(\s+\d+)?)*\s*$/;
 const DURING_TASK = [
   [/\bgit\s+push\b/i, "pushing is done by a human after review"],
@@ -28,11 +29,13 @@ const DURING_TASK = [
 // Running the state script is allowed, but only as a single plain command.
 const ALLOWED = /^\s*node\s+"?[^"\s]*task-state\.mjs"?\s+(start|show|clear|event)\b/;
 
-function taskActive(projectDir, payload) {
+/** This session's task, null when there is none; a corrupt state file counts as an active task. */
+function activeTask(projectDir, payload) {
   try {
-    return findTaskProject([projectDir, payload.cwd], payload.session_id) !== null;
+    const home = findTaskProject([projectDir, payload.cwd], payload.session_id);
+    return home && readTask(home, payload.session_id);
   } catch {
-    return true;
+    return {};
   }
 }
 
@@ -47,9 +50,13 @@ function readsOnly(command) {
 export function decide(payload, projectDir) {
   const command = payload.tool_input?.command ?? "";
   if (ALLOWED.test(command) && !/[;&|`$<>]/.test(command)) return null;
-  const rules = taskActive(projectDir, payload) ? [...ALWAYS, ...DURING_TASK] : ALWAYS;
+  const task = activeTask(projectDir, payload);
+  const rules = task ? [...ALWAYS, ...DURING_TASK] : ALWAYS;
   const hit = rules.find(([pattern]) => pattern.test(command));
   if (hit) return `Blocked: ${hit[1]}. Ask the human to run it if it is really needed.`;
+  if (task?.mode === "plan" && !readsOnly(command)) {
+    return "Blocked: /usta:oyla only plans, so the shell is read-only (ls, cat, grep, find, git diff/log...). To build the plan, the human runs /usta:resume <task folder>.";
+  }
   if (WORKFLOW_FILES.test(command) && !readsOnly(command)) {
     return "Blocked: workflow files are not editable by agents. Ask the human to run it if it is really needed.";
   }

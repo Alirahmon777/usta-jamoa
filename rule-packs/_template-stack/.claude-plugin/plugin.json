@@ -1,0 +1,8 @@
+{
+  "name": "usta-STACK",
+  "version": "0.1.0",
+  "description": "STACK rules for the usta agents (coder, simplifier, tester, reviewer). Enable per project in .claude/usta.json skills: usta-STACK:rules",
+  "author": { "name": "Alirahmon Nuraliyev" },
+  "license": "MIT",
+  "keywords": ["usta", "rules", "STACK"]
+}

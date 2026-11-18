@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // PreToolUse hook: while a /task is active, block source edits until its plan is approved.
+// A /usta:oyla task (mode "plan") is never approved, so it can write docs/ only; a /usta:tez task
+// (mode "fast") may touch at most routing fast.max_files source files.
 // Without an active task the plugin stays out of the way, unless the project opted in with
 // {"requireTask": true} in .claude/usta.json: then every source edit needs /task first.
 // The docs/ memory folders are always writable; the gate's own files never are.
@@ -8,7 +10,7 @@
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { findTaskProject, projectConfig, projectRootOf, readTask } from "./task-state.mjs";
+import { fastLimits, findTaskProject, projectConfig, projectRootOf, readTask, rememberFile, routingPath } from "./task-state.mjs";
 
 const ALWAYS_ALLOWED = [
   "docs/plans/", "docs/memory/", "docs/adr/", "docs/simplification/", "docs/known-issues/",
@@ -41,8 +43,9 @@ export function decide(payload, projectDir) {
   if (creatingConfig || ALWAYS_ALLOWED.some((p) => rel.startsWith(p))) return null;
 
   let task;
+  let home;
   try {
-    const home = findTaskProject([root, projectDir, payload.cwd], payload.session_id);
+    home = findTaskProject([root, projectDir, payload.cwd], payload.session_id);
     task = home && readTask(home, payload.session_id);
   } catch {
     return "The usta task state in .claude/state/ is not valid JSON. Re-run /usta:task.";
@@ -52,9 +55,25 @@ export function decide(payload, projectDir) {
       ? "This project requires /usta:task <request> so the work is triaged and planned before code changes."
       : null;
   }
+  if (task.mode === "plan") {
+    return `/usta:oyla only plans: it writes docs/ and never source code (${rel}). To build the plan, the human runs /usta:resume <task folder>.`;
+  }
+  if (task.mode === "fast") return fastEdit(task, home, payload.session_id, absolute);
   if (!task.approved) {
     return `Plan for task '${task.task_id ?? "?"}' is not approved yet (plan: ${task.plan_path ?? "missing"}). Wait for the human to run /usta:approve.`;
   }
+  return null;
+}
+
+/** Fast mode: a file already edited is always fine; a new one counts against fast.max_files. */
+function fastEdit(task, home, session, absolute) {
+  const fileKey = toPosix(path.relative(home, absolute));
+  if (task.files?.includes(fileKey)) return null;
+  const { max_files: maxFiles } = fastLimits(JSON.parse(readFileSync(routingPath(home), "utf8")));
+  if ((task.files?.length ?? 0) >= maxFiles) {
+    return `/usta:tez allows at most ${maxFiles} files and this would be file ${maxFiles + 1} (${fileKey}). Stop, report what is done, and suggest /usta:task for the rest.`;
+  }
+  rememberFile(home, session, fileKey);
   return null;
 }
 
