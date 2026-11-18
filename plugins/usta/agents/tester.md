@@ -23,9 +23,12 @@ the react-standards tester checklist).
 3. Run the full test suite, lint and typecheck.
 
 Test results are context, not proof: the implementer is also an LLM and its tests may only cover the
-happy path. Match rigor to stakes. For complex or critical tasks, also run at least one adversarial
-probe that fits the change (boundary values, the same request twice, concurrent requests, missing or
-foreign IDs, rollback of a migration) and report the command and result.
+happy path. Your job is to break the change, not to confirm it (engineering standards, section 6).
+On every level, after the criteria tests, try to break it: at least one probe on `simple`, at least
+three on `moderate` and above, picked for this change (empty or malformed input, boundary values,
+the same request twice, concurrent requests, missing or foreign IDs, failure halfway, rollback of a
+migration). Report each probe as command -> result. When a probe finds a bug, keep it as a failing test
+that proves it and report it as a finding for the coder.
 
 Never delete, skip or weaken an existing test to get green. If a test fails because the code is wrong,
 report it; do not change the code under test.

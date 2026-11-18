@@ -43,11 +43,17 @@ GitHub'siz sinab ko'rish: `claude --plugin-dir ./plugins/usta`.
 |---|---|
 | `/usta:init` | Loyihani tayyorlaydi: `docs/` shablonlari, `.claude/usta.json`, `.gitignore`, `CLAUDE.md` bo'limi. Mavjud faylni ustidan yozmaydi |
 | `/usta:task <so'rov>` | So'rovni butun jamoa orqali o'tkazadi |
+| `/usta:tez <so'rov>` | Tezkor rejim: savol yoki kichik, xavfsiz o'zgarish. Triage, reja va agentlarsiz, bitta Sonnet. Auth, to'lov, migratsiyaga tegsa yoki 3 tadan ko'p fayl kerak bo'lsa, to'xtab `/usta:task` ni taklif qiladi |
+| `/usta:oyla <so'rov>` | Faqat reja: kodni o'qiydi, risklarni topadi, qarorlarni sizdan so'raydi, reviewer rejani tanqid qiladi. Natija `docs/plans/` da. Kod yozmaydi, auto mode'da ham. Keyin `/usta:resume <papka>` quradi |
 | `/usta:approve` | Rejani tasdiqlaydi. **Faqat siz** yoza olasiz: Claude bu buyruqni chaqira olmaydi, tasdiqni hook yozadi |
 | `/usta:budget` | Task daraja byudjetiga yetib to'xtaganda yana bitta daraja byudjetiga ruxsat beradi. Bu ham **faqat siz** uchun |
 | `/usta:resume [docs/plans/<papka>]` | Chala qolgan ishni yangi sessiyada HANDOFF.md dan davom ettiradi |
 | `/usta:audit [yo'l]` | Tayyor loyihani tekshiradi: buglar, hardcode'lar, xavfsizlik va yaxshilanishlarni `docs/known-issues/` ga yozadi. Kodni o'zgartirmaydi |
 | `/usta:dashboard` | Jonli dashboardni brauzerda ochadi: agentlar, bosqichlar, modellar, token va narx |
+
+Oddiy prompt (slash buyruqsiz): `requireTask: true` bo'lgan loyihada har promptga qisqa eslatma
+qo'shiladi va Claude mos rejimni (`tez`, `oyla` yoki `task`) o'zi tanlaydi. Savolga rejim kerak emas.
+`requireTask` yo'q loyihada plugin oddiy promptga aralashmaydi.
 
 Orkestrator `/task` davomida Opus'da ishlaydi. Har bir loyihada `init` qilish shart emas: u
 qilinmasa ham plugin shablonlari va standart routing bilan ishlaydi.
@@ -69,6 +75,8 @@ Ikkita cheklovni hook majburlaydi: parallel worktree agentlari faqat `parallel.l
 darajalarda ishlaydi, task agentlarining taxminiy narxi `max_budget_usd` ga yetganda yangi agent
 ishga tushmaydi va orkestrator sizdan `/usta:budget` yoki to'xtashni so'raydi.
 
+`complex` va `critical` da reja tasdiqqa chiqishidan oldin reviewer uni tanqid qiladi (`plan_critique`).
+
 Soddalashtirish (simplifier) `trivial` dan boshqa hamma darajada ishlaydi; `simple` da sonnet bilan.
 Reviewer `simple` da sonnet, `moderate` dan boshlab opus.
 
@@ -88,6 +96,25 @@ Ular zid kelsa, **KISS va YAGNI ustun**: masalan, "SOLID uchun" qo'shilgan, bitt
 interfeys xato hisoblanadi. DRY kodga emas, bilimga qo'llanadi: uchinchi nusxagacha takror kod
 mumkin. Reviewer har topilmada qaysi prinsip buzilganini aytadi, simplifier esa nimani
 soddalashtirganini `docs/simplification/` ga yozadi.
+
+## Agentlar bir-biriga ishonmaydi
+
+Har agentning gapi boshqasi uchun dalil emas, da'vo (`engineering-standards`, 6-bo'lim):
+- **Tester** kodni buzishga urinadi (`simple` da kamida 1, `moderate` dan kamida 3 urinish: bo'sh
+  input, chegara qiymati, ikki marta so'rov, parallel so'rov, yarmida xato...). Topgan xatoni
+  yiqiladigan test bilan isbotlaydi.
+- **Reviewer** coder va tester hisobotini qayta tekshiradi, "bu qanday buziladi?" deb so'raydi va
+  `complex`/`critical` da approvaldan oldin rejaning o'zini tanqid qiladi.
+- **Security** har topilmaga aniq hujum yo'lini yozadi; hujum yo'li bo'lmasa, topilma ko'pi bilan LOW.
+- **Simplifier** har yangi abstraksiya uchun "olib tashlansa nima buziladi?" deb so'raydi.
+- Topganlar aytadi, coder tuzatadi, topganlar qayta tekshiradi. Hakam o'zi baholayotgan kodni tuzatmaydi.
+
+## Qoida paketlari (Java, React, FSD, Payme, E-imzo, OneID...)
+
+Stack va integratsiya qoidalari yadroga qo'shilmaydi: har biri shu marketplace'dagi alohida plugin
+(`usta-java`, `usta-react-fsd`, `usta-payme`, `usta-eimzo`...), kim xohlasa o'rnatadi. Stack paketlari
+`.claude/usta.json` orqali doim yoqiladi, integratsiya paketlari faqat task ularga tegsa yuklanadi.
+Shablonlar va qo'llanma: [rule-packs/README.md](rule-packs/README.md).
 
 ## `docs/` tuzilmasi
 
@@ -151,11 +178,12 @@ Qoidalar ziddiyatga kelsa, ustunlik tartibi: loyiha qoidalari va skilllari, keyi
 
 | Hook | Doim | Faqat task davomida |
 |---|---|---|
-| `require-approved-plan` | `.claude/state`, `settings`, `routing.json`, `usta.json` va plugin fayllarini agent o'zgartira olmaydi | Reja tasdiqlanmaguncha `Edit/Write` bloklanadi (`docs/` papkalaridan tashqari) |
-| `guard-bash` | `rm -rf /`, `reset --hard`, `DROP TABLE`, deploy, `.env` o'qish, `curl \| sh`, tasdiqni aylanib o'tish, workflow fayllarini o'zgartirish (`ls`, `cat`, `grep` kabi o'qish va dashboard serveri ruxsat) | `git push`, `npm publish` |
+| `require-approved-plan` | `.claude/state`, `settings`, `routing.json`, `usta.json` va plugin fayllarini agent o'zgartira olmaydi | Reja tasdiqlanmaguncha `Edit/Write` bloklanadi (`docs/` papkalaridan tashqari). `/usta:oyla` da `docs/` dan tashqari hech narsa, `/usta:tez` da ko'pi bilan 3 fayl |
+| `prompt-reminder` | `requireTask: true` loyihada oddiy promptga usta rejimlari haqida eslatma qo'shadi | |
+| `guard-bash` | `rm -rf /`, `reset --hard`, `DROP TABLE`, deploy, `.env` o'qish, `curl \| sh`, tasdiqni aylanib o'tish, workflow fayllarini o'zgartirish (`ls`, `cat`, `grep` kabi o'qish va dashboard serveri ruxsat) | `git push`, `npm publish`; `/usta:oyla` da faqat o'qish buyruqlari |
 | `lint-on-edit` | JS/TS fayl tahriridan keyin Biome yoki ESLint xatolarini agentga qaytaradi (loyihada bo'lsa) | |
 | `approve-hook` | Siz `/usta:approve` yoki `/usta:budget` yozganingizda tasdiq yoki yangi byudjetni yozadi | |
-| `agent-gate` | | Daraja ruxsat bermasa parallel worktree agentini, byudjet tugaganda yangi `usta:*` agentni bloklaydi |
+| `agent-gate` | | Daraja ruxsat bermasa parallel worktree agentini, byudjet tugaganda yangi `usta:*` agentni bloklaydi. `/usta:oyla` da faqat triage, analyzer, planner, reviewer, security; `/usta:tez` da birorta ham usta agent yo'q |
 
 Agar `requireTask` ni hamma loyihada majburiy qilmoqchi bo'lmasangiz, uni faqat kerakli loyihalarda yoqing.
 
@@ -200,7 +228,7 @@ Plugin ichiga kiritilmadi: interaktiv ishni plugin to'liq qoplaydi. CI yoki skri
 plugins/usta/
   .claude-plugin/plugin.json
   agents/          8 ta agent: triage, analyzer, planner, coder, simplifier, tester, reviewer, security-reviewer
-  skills/          task, resume, approve, budget, audit, init, dashboard (buyruqlar)
+  skills/          task, tez, oyla, resume, approve, budget, audit, init, dashboard (buyruqlar)
                    engineering-standards, project-docs (agentlarga avtomatik yuklanadi)
                    react-standards (ixtiyoriy)
   hooks/hooks.json
@@ -208,6 +236,7 @@ plugins/usta/
   dashboard/       site/ dan yig'ilgan tayyor dashboard (npm run build:plugin)
   routing.json     standart daraja -> model/effort/bosqichlar
   templates/docs/  plans/_TEMPLATE/, memory, adr, simplification, known-issues va migratsiya shablonlari
+rule-packs/                         stack va integratsiya qoida paketlari uchun shablonlar va qo'llanma
 examples/eslint.config.js           murakkablik chegaralari bilan ESLint namunasi
 tests/                              node --test tests/*.test.mjs
 site/                               landing va dashboard manbasi (React + Vite)

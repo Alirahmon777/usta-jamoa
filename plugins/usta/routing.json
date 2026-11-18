@@ -50,6 +50,11 @@
     ],
     "max_agents": 3
   },
+  "fast": {
+    "_comment": "/usta:tez (fast mode): one Claude, no usta agents, no plan. task-state.mjs refuses it when the floors raise the level above max_level; the edit hook stops it at max_files source files.",
+    "max_level": "simple",
+    "max_files": 3
+  },
   "levels": {
     "trivial": {
       "description": "Typo, rename, config value, one-line fix. No design decisions.",
@@ -196,7 +201,8 @@
           "model": "opus",
           "effort": "high"
         }
-      }
+      },
+      "plan_critique": true
     },
     "critical": {
       "description": "Auth, payments, data migrations on production data, security fixes, anything hard to roll back.",
@@ -243,8 +249,9 @@
           "model": "opus",
           "effort": "xhigh"
         }
-      }
+      },
+      "plan_critique": true
     }
   },
-  "_comment_phases": "brainstorm: the orchestrator asks the human only plan-changing questions, each with a recommended answer, and waits. In 'simple' it is skipped when there is no such question."
+  "_comment_phases": "brainstorm: the orchestrator asks the human only plan-changing questions, each with a recommended answer, and waits. In 'simple' it is skipped when there is no such question. plan_critique: before the approval gate, the reviewer attacks the plan (plan critique mode) and the planner fixes MAJOR findings once."
 }

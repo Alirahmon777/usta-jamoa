@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 // PreToolUse hook on Agent calls during /usta:task. Two limits from routing that a prompt alone did not hold:
 // - parallel coders (isolation "worktree") only on levels listed in parallel.levels;
-// - no new usta agent once the task's estimated cost reached its budget, until the human types /usta:budget.
+// - no new usta agent once the task's estimated cost reached its budget, until the human types /usta:budget;
+// - /usta:oyla (mode "plan") runs only the agents that read and plan; /usta:tez (mode "fast") runs none.
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { findTaskProject, readTask, routingPath, spentUsd } from "./task-state.mjs";
+
+const PLANNING_AGENTS = ["usta:triage", "usta:analyzer", "usta:planner", "usta:reviewer", "usta:security-reviewer"];
 
 /** Returns a denial reason, or null to allow. */
 export function decide(payload, projectDir) {
@@ -13,6 +16,12 @@ export function decide(payload, projectDir) {
   const home = findTaskProject([projectDir, payload.cwd], payload.session_id);
   const task = home && readTask(home, payload.session_id);
   if (!task) return null;
+  if (task.mode === "plan" && !PLANNING_AGENTS.includes(input.subagent_type)) {
+    return `/usta:oyla only plans, so ${input.subagent_type} cannot run. Allowed: ${PLANNING_AGENTS.join(", ")}. To build the plan, the human runs /usta:resume <task folder>.`;
+  }
+  if (task.mode === "fast") {
+    return "/usta:tez works alone, without usta agents. If the request needs a team, stop and suggest /usta:task.";
+  }
 
   const { parallel = {} } = JSON.parse(readFileSync(routingPath(home), "utf8"));
   if (input.isolation === "worktree" && !(parallel.levels ?? []).includes(task.level)) {

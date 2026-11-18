@@ -53,7 +53,18 @@ Use these to judge a design, not as patterns to add. **When they conflict, KISS 
 - Run lint, typecheck and tests after each step. Never claim success without command output that shows it.
 - Never disable, skip or weaken a test to make it pass.
 
-## 6. Production concerns (proportional to risk)
+## 6. Verify, don't trust (how usta agents treat each other)
+- Another agent's report is a claim, not evidence. "Tests pass", "all criteria met", "no callers
+  affected": check it yourself (run the command, open the file) before you build on it.
+- Your job is to find what is wrong, not to agree. Ask how it breaks: empty, null, huge or malformed
+  input, the boundary value, the same call twice, two calls at once, a failure halfway, a missing
+  permission, the old data already in production.
+- Every finding carries evidence: a command and its output, or file:line and the input that breaks it.
+  A finding you cannot back up is a question, and you say so.
+- Finders report, the coder fixes, finders check the fix. Never fix code you are judging.
+- Being critical is not being noisy: no style nitpicks dressed up as findings.
+
+## 7. Production concerns (proportional to risk)
 - Validate input at trust boundaries; parameterize queries; never log secrets or personal data.
 - Database/schema changes are backward compatible and come with a migration and a rollback note.
 - Public API changes are versioned or backward compatible.

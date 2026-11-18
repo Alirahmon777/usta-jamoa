@@ -24,7 +24,8 @@ and critical levels) that the code really contains it. Untick any step that is n
 Tell the human, in a few lines: what is done, what is next, open questions from the plan.
 
 ## 3. Register and approve
-Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <folder slug> --level <level> --plan <task folder>/plan.md`
+If `show --session ${CLAUDE_SESSION_ID}` lists a task (for example the plan-only task of `/usta:oyla`),
+run `clear --session ${CLAUDE_SESSION_ID}` first: this run builds, so it starts a fresh task. Then run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <folder slug> --level <level> --plan <task folder>/plan.md`
 (add `--auto-approve` only for levels whose routing has `require_approval: false`).
 If it prints "Level raised", that level (and its routing) applies from now on; write it into plan.md.
 A new session needs a new approval: when `require_approval` is true, ask the human to type

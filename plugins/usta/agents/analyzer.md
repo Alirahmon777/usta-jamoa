@@ -29,7 +29,10 @@ Report in this structure, concise, with file paths:
 10. For migrations only: differences between the old and new system that you found (old file:line,
    new file:line, what the user sees), and legacy bugs that will be copied 1:1. These go to
    docs/difference/ and docs/known-issues/<repo>-legacy-bugs.md.
-11. Complexity check - does the triage level still look right? Say "raise to <level>" with a reason if not.
+11. Rule packs - installed skills from usta rule packs (named `usta-<name>:*`, for example
+   `usta-payme:payme-merchant` or `usta-eimzo:eimzo-backend`) that this request touches, so the
+   orchestrator tells every agent to load them. "None" when nothing applies.
+12. Complexity check - does the triage level still look right? Say "raise to <level>" with a reason if not.
 
 Project rules win: CLAUDE.md, `.claude/rules/` and the skills the orchestrator tells you to load
 (load them with the Skill tool before you start) override the plugin's standards wherever they differ.

@@ -2,7 +2,11 @@
 // Manage <project>/.claude/state/task.json, the gate that unlocks source edits during /task.
 //
 //   start --session ID --task-id ID --level LEVEL [--title TEXT] [--task-type TYPE] [--risks a,b] [--plan PATH] [--auto-approve]
+//         [--mode plan|fast]
 //         (agents may run this; the routing floors can only raise LEVEL, and the stored level never drops)
+//         --mode plan (/usta:oyla): never approved, so hooks allow only docs/ edits, read-only shell and planning agents.
+//         --mode fast (/usta:tez): approved at once, but refused when the floors raise the level above
+//         routing fast.max_level; hooks allow no usta agents and at most fast.max_files edited files.
 //   show --session ID | clear --session ID
 //   event '<json>'   records a plan.part, tests or finding event for the dashboard
 //
@@ -166,13 +170,22 @@ export function floorLevel(routing, { level, taskType, risks = [], plan }) {
   return result;
 }
 
-export function start({ taskId, level, title, plan = null, autoApprove = false, session, taskType, risks }, project = projectDir()) {
+export const MODES = ["plan", "fast"];
+
+/** Limits of /usta:tez; older project routing copies have no "fast" section. */
+export function fastLimits(routing) {
+  return { max_level: "simple", max_files: 3, ...routing.fast };
+}
+
+export function start({ taskId, level, title, plan = null, autoApprove = false, session, taskType, risks, mode }, project = projectDir()) {
   const routing = JSON.parse(readFileSync(routingPath(project), "utf8"));
   const { levels } = routing;
   if (!levels[level]) throw new Error(`Unknown level '${level}'. Expected one of: ${Object.keys(levels).join(", ")}`);
+  if (mode && !MODES.includes(mode)) throw new Error(`Unknown mode '${mode}'. Expected one of: ${MODES.join(", ")}`);
   const previous = readTask(project, session);
   // A second start for the same task (with the plan) keeps what the first one learned.
   const same = previous?.task_id === taskId ? previous : null;
+  const taskMode = mode ?? same?.mode ?? null;
   const order = Object.keys(levels);
   const planFile = plan && path.resolve(project, plan);
   const floor = floorLevel(routing, {
@@ -181,9 +194,18 @@ export function start({ taskId, level, title, plan = null, autoApprove = false, 
     risks: risks ?? same?.risks,
     plan: planFile && existsSync(planFile) ? readFileSync(planFile, "utf8") : null,
   });
-  const approved = autoApprove && !levels[floor.level].require_approval;
+  if (taskMode === "fast") {
+    const { max_level: maxLevel } = fastLimits(routing);
+    if (order.indexOf(floor.level) > order.indexOf(maxLevel) || levels[floor.level].require_approval) {
+      const why = floor.reasons.length ? ` (${floor.reasons.join("; ")})` : "";
+      throw new Error(`Too big for /usta:tez: level '${floor.level}'${why}, fast mode allows up to '${maxLevel}'. Use /usta:task (or /usta:oyla to plan first).`);
+    }
+  }
+  // Plan mode is never approved: approval is what unlocks source edits.
+  const approved = taskMode === "fast" || (taskMode !== "plan" && autoApprove && !levels[floor.level].require_approval);
   const state = save(project, session, {
     task_id: taskId,
+    mode: taskMode,
     level: floor.level,
     triage_level: same?.triage_level ?? level,
     raised_because: [...(same?.raised_because ?? []), ...floor.reasons],
@@ -193,6 +215,7 @@ export function start({ taskId, level, title, plan = null, autoApprove = false, 
     approved,
     approved_by: approved ? "auto" : null,
     budget_usd: Math.max(same?.budget_usd ?? 0, levels[floor.level].max_budget_usd ?? 0) || null,
+    files: same?.files ?? [],
     created_at: same?.created_at ?? new Date().toISOString(),
   });
   try {
@@ -203,9 +226,19 @@ export function start({ taskId, level, title, plan = null, autoApprove = false, 
   return state;
 }
 
+/** Fast mode counts the source files it edits; the edit hook records each new one here. */
+export function rememberFile(project, session, rel) {
+  const current = readTask(project, session);
+  if (!current || current.files?.includes(rel)) return current;
+  return save(project, session, { ...current, files: [...(current.files ?? []), rel] });
+}
+
 export function approve(project = projectDir(), session = undefined) {
   const current = readTask(project, session);
   if (!current) throw new Error("No active task to approve. Start one with /usta:task.");
+  if (current.mode === "plan") {
+    throw new Error("A /usta:oyla task only plans. To build it, run /usta:resume <task folder>; that task can be approved.");
+  }
   const state = save(project, session, { ...current, approved: true, approved_by: "human", approved_at: new Date().toISOString() });
   emit(project, { type: "approval.granted", by: "human" });
   return state;
@@ -259,6 +292,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
       "task-type": { type: "string" },
       risks: { type: "string" },
       "auto-approve": { type: "boolean", default: false },
+      mode: { type: "string" },
     },
   });
   try {
@@ -268,7 +302,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
         if (!values.session) throw new Error("Pass --session ${CLAUDE_SESSION_ID} (the usta skills fill it in).");
         const state = start({ taskId: values["task-id"], level: values.level, title: values.title, plan: values.plan ?? null,
           autoApprove: values["auto-approve"], session: values.session, taskType: values["task-type"],
-          risks: values.risks?.split(",").map((risk) => risk.trim()).filter(Boolean) });
+          risks: values.risks?.split(",").map((risk) => risk.trim()).filter(Boolean), mode: values.mode });
         if (state.level !== values.level) {
           console.log(`Level raised from '${values.level}' to '${state.level}' (${state.raised_because.join("; ")}). Use the routing of '${state.level}' from now on.`);
         }

@@ -26,6 +26,11 @@ Request: $ARGUMENTS
   skills (for example `usta:react-standards` or the project's `fsd-rules`). Tell every analyzer,
   planner, coder, simplifier, tester, reviewer and security-reviewer to load each of them with the Skill
   tool before starting. CLAUDE.md and `.claude/rules/` reach the subagents on their own.
+- Rule packs: installed plugins named `usta-<name>` (from the usta-jamoa marketplace) add skills such as
+  `usta-java:rules` or `usta-payme:payme-merchant`. Stack packs are listed in `.claude/usta.json` `skills`
+  and always load. Integration packs load only when the task is about them: the analyzer reports which
+  installed ones apply (on levels without an analyzer, check the skill list yourself); add those to what
+  every agent loads. Precedence: project rules > rule packs > the plugin's standards.
 - Project memory: read `docs/memory/MEMORY.md` if it exists and pass the facts that matter to each agent.
 - Docs rules: load the `usta:project-docs` skill now. Everything is written while you work, not at
   the end: if the session stops, docs/ must show the true state.
@@ -68,6 +73,10 @@ For every Agent call, pass `model` = the alias in `levels.<level>.agents.<role>.
   If it prints "Level raised", re-read routing and use the new level's phases, models, approval gate and
   budget for everything that follows; do not go back to analyze. Write the new level into plan.md. If the planner proposes an ADR,
   write `docs/adr/NNNN-<slug>.md` yourself (status "taklif" until the plan is approved).
+- **Plan critique** (levels with `plan_critique: true` in routing): before the gate, run `reviewer` in
+  plan critique mode with the task folder (plus `security-reviewer` in plan critique mode when triage
+  flagged risk areas), in parallel. Send their BLOCKER and MAJOR findings to the same `planner` once;
+  list what is left under the plan's risks and show it at the gate.
 - **Approval gate** (when `require_approval` is true): show the plan summary, open questions and risks,
   then stop. Tell the human: to approve, type `/usta:approve`; or reply with changes. On changes,
   send them to `planner` and repeat the gate. Only the human can approve: you cannot run that command,
@@ -91,8 +100,12 @@ For every Agent call, pass `model` = the alias in `levels.<level>.agents.<role>.
      rounds) runs once, in the main tree, on the merged result.
 - simplify -> `simplifier` with the task folder name and the changed files (it writes `docs/simplification/`).
   It runs on every level except trivial.
-- test -> `tester` with the plan path.
+- test -> `tester` with the plan path and the level (it tries to break the change on every level).
+  A failing test it wrote to prove a bug is a finding for the `coder`, not something to delete.
 - review -> `reviewer`; security -> `security-reviewer` (run these two in parallel).
+- Agents check each other: pass the coder's and tester's claims (what changed, which commands passed)
+  to the reviewers as claims to verify, not as facts. Finders report, the `coder` fixes, the finders
+  check again: a reviewer or tester never fixes the code it judges.
 - Feedback loop: if tests fail or any verdict is CHANGES_REQUESTED, send the exact findings to the same
   `coder`, then rerun test and review. Stop after `max_review_rounds` rounds and report what is still open.
 
