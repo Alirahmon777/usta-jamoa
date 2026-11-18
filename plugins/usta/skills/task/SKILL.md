@@ -35,14 +35,16 @@ Request: $ARGUMENTS
 - Agents are `usta:<role>` (for example `usta:coder`).
 
 ## 1. Triage
-Delegate to `usta:triage`. Apply the risk floor from routing: if any `risk_areas` match
-`risk_floor.areas`, raise the level to at least `risk_floor.min_level`. You may raise the level later;
-never lower it. If `needs_clarification` is true, ask the human those questions (with the defaults) and
-wait. Tell the human the level, the reason and which phases will run, in two lines.
+Delegate to `usta:triage` with the request word for word. If `needs_clarification` is true, ask the human
+those questions (with the defaults) and wait. You may raise the level when the request is clearly bigger
+than triage saw; never lower it.
 
 ## 2. Register the task
-Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <short-slug> --level <level> --title "<the request in a few words, in the human's language>"`
+Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs start --session ${CLAUDE_SESSION_ID} --task-id <short-slug> --level <level> --task-type <task_type> [--risks <risk_areas, comma-separated; omit when none>] --title "<the request in a few words, in the human's language>"`
 (add `--auto-approve` for levels whose routing has `require_approval: false`).
+The script applies the routing floors (risk areas, task type) and prints the final level if it raised it:
+**the level in its output is the task's level from now on.** Tell the human that level, the reason and
+which phases will run, in two lines.
 If the level has a plan phase, the task folder is `docs/plans/<YYYY-MM-DD>-<short-slug>/`.
 
 ## 3. Run the phases listed for the level, in order
@@ -61,7 +63,10 @@ For every Agent call, pass `model` = the alias in `levels.<level>.agents.<role>.
 - plan -> `planner` with the task folder, the analysis and the brainstorm. If the level is listed in
   `parallel.levels`, tell it that parallel parts are allowed, at most `parallel.max_agents`; otherwise
   tell it to mark every part "worktree: yo'q". Then run the `start` command again with
-  `--plan <task folder>/plan.md` (plus `--auto-approve` when allowed). If the planner proposes an ADR,
+  `--plan <task folder>/plan.md` (plus `--auto-approve` when allowed). The script measures the plan's
+  parallel map and raises the level when the plan is bigger than triage expected (`plan_floor` in routing).
+  If it prints "Level raised", re-read routing and use the new level's phases, models, approval gate and
+  budget for everything that follows; do not go back to analyze. Write the new level into plan.md. If the planner proposes an ADR,
   write `docs/adr/NNNN-<slug>.md` yourself (status "taklif" until the plan is approved).
 - **Approval gate** (when `require_approval` is true): show the plan summary, open questions and risks,
   then stop. Tell the human: to approve, type `/usta:approve`; or reply with changes. On changes,
@@ -84,11 +89,18 @@ For every Agent call, pass `model` = the alias in `levels.<level>.agents.<role>.
      log line in progress.md, the next step in HANDOFF.md, and the known-issues the coder reported.
      Parts marked "worktree: yo'q" run after their dependencies with one `coder` in the main tree. Everything after that (simplify, test, review, fix
      rounds) runs once, in the main tree, on the merged result.
-- simplify -> `simplifier` with the task folder name (it writes `docs/simplification/`).
+- simplify -> `simplifier` with the task folder name and the changed files (it writes `docs/simplification/`).
+  It runs on every level except trivial.
 - test -> `tester` with the plan path.
 - review -> `reviewer`; security -> `security-reviewer` (run these two in parallel).
 - Feedback loop: if tests fail or any verdict is CHANGES_REQUESTED, send the exact findings to the same
   `coder`, then rerun test and review. Stop after `max_review_rounds` rounds and report what is still open.
+
+Limits a hook enforces (do not try to get around them):
+- Parallel worktree agents are refused on levels outside `parallel.levels`.
+- Budget: the level's `max_budget_usd` (estimated cost of the task's agents). When it is reached, new
+  `usta:*` agents are refused. Then stop: tell the human what is spent, what is done and what is left, and
+  that they can type `/usta:budget` to allow one more level budget, or stop here. Only the human can.
 
 Live dashboard (`/usta:dashboard`): hooks record agents and phases by themselves. Record the three
 things only you know with `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-state.mjs event '<json>'`, one call per event:
