@@ -3,10 +3,12 @@
 // Without an active task the plugin stays out of the way, unless the project opted in with
 // {"requireTask": true} in .claude/usta.json: then every source edit needs /task first.
 // The docs/ memory folders are always writable; the gate's own files never are.
+// Paths, docs/ and .claude/usta.json are resolved against the project the edited file belongs to (a nested
+// repo inside the session folder counts), and the task is the one this Claude session started.
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { projectConfig, readTask } from "./task-state.mjs";
+import { findTaskProject, projectConfig, projectRootOf, readTask } from "./task-state.mjs";
 
 const ALWAYS_ALLOWED = [
   "docs/plans/", "docs/memory/", "docs/adr/", "docs/simplification/", "docs/known-issues/",
@@ -29,7 +31,8 @@ export function decide(payload, projectDir) {
   const filePath = input.file_path ?? input.notebook_path;
   if (!filePath) return null;
   const absolute = path.resolve(projectDir, filePath);
-  const rel = toPosix(path.relative(path.resolve(projectDir), absolute));
+  const root = projectRootOf(absolute, projectDir);
+  const rel = toPosix(path.relative(root, absolute));
 
   const creatingConfig = rel === CREATE_ONLY && !existsSync(absolute);
   if (toPosix(absolute).includes("/.claude/plugins/") || (!creatingConfig && NEVER_ALLOWED.some((p) => rel.startsWith(p)))) {
@@ -39,12 +42,13 @@ export function decide(payload, projectDir) {
 
   let task;
   try {
-    task = readTask(projectDir);
+    const home = findTaskProject([root, projectDir, payload.cwd], payload.session_id);
+    task = home && readTask(home, payload.session_id);
   } catch {
-    return ".claude/state/task.json is not valid JSON. Re-run /usta:task.";
+    return "The usta task state in .claude/state/ is not valid JSON. Re-run /usta:task.";
   }
   if (!task) {
-    return projectConfig(projectDir).requireTask
+    return projectConfig(root).requireTask
       ? "This project requires /usta:task <request> so the work is triaged and planned before code changes."
       : null;
   }

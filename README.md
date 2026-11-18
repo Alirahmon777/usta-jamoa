@@ -131,11 +131,16 @@ Qoidalar ziddiyatga kelsa, ustunlik tartibi: loyiha qoidalari va skilllari, keyi
 | Hook | Doim | Faqat task davomida |
 |---|---|---|
 | `require-approved-plan` | `.claude/state`, `settings`, `routing.json`, `usta.json` va plugin fayllarini agent o'zgartira olmaydi | Reja tasdiqlanmaguncha `Edit/Write` bloklanadi (`docs/` papkalaridan tashqari) |
-| `guard-bash` | `rm -rf /`, `reset --hard`, `DROP TABLE`, deploy, `.env` o'qish, `curl \| sh`, tasdiqni aylanib o'tish | `git push`, `npm publish` |
+| `guard-bash` | `rm -rf /`, `reset --hard`, `DROP TABLE`, deploy, `.env` o'qish, `curl \| sh`, tasdiqni aylanib o'tish, workflow fayllarini o'zgartirish (`ls`, `cat`, `grep` kabi o'qish va dashboard serveri ruxsat) | `git push`, `npm publish` |
 | `lint-on-edit` | JS/TS fayl tahriridan keyin Biome yoki ESLint xatolarini agentga qaytaradi (loyihada bo'lsa) | |
 | `approve-hook` | Siz `/usta:approve` yozganingizda tasdiqni yozadi | |
 
 Agar `requireTask` ni hamma loyihada majburiy qilmoqchi bo'lmasangiz, uni faqat kerakli loyihalarda yoqing.
+
+Har bir Claude sessiyasining o'z task holati bor (`.claude/state/tasks/<sessiya>.json`): bir sessiyada
+tasdiq kutayotgan task boshqa sessiyaning tahrirlarini to'xtatmaydi. Bir papkada bir nechta repo bo'lsa,
+`docs/` va `.claude/usta.json` tahrir qilinayotgan faylga eng yaqin repo (`.git` yoki `.claude/usta.json`
+turgan papka) bo'yicha olinadi.
 
 ## Jonli dashboard
 

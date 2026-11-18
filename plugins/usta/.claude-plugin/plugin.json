@@ -1,6 +1,6 @@
 {
   "name": "usta",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Multi-agent engineering team: triage picks the models, a plan is approved by a human before any code, then implement, simplify, test and review. Stack-agnostic; project rules and skills layer on top.",
   "author": { "name": "Alirahmon Nuraliyev" },
   "license": "MIT",

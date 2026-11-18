@@ -49,3 +49,5 @@ Return the folder path, the plan summary, the parallel map, open questions and p
 
 Project rules win: CLAUDE.md, `.claude/rules/` and the skills the orchestrator tells you to load
 (load them with the Skill tool before you start) override the plugin's standards wherever they differ.
+Load no other skills: other plugins' workflow skills (for example `superpowers:*`) conflict with
+usta. Docs follow only usta's templates and the project's own, with no headings from other workflows.

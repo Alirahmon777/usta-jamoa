@@ -3,13 +3,14 @@
 // (Claude cannot invoke the skill: it sets disable-model-invocation), so this is the human gate.
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { approve, projectDir } from "./task-state.mjs";
+import { approve, findTaskProject, projectDir } from "./task-state.mjs";
 
 /** Returns the hook output object. */
 export function decide(payload, project) {
   if (!/(^|:)approve$/.test(payload.command_name ?? "")) return {};
   try {
-    const state = approve(project);
+    const home = findTaskProject([project, payload.cwd], payload.session_id) ?? project;
+    const state = approve(home, payload.session_id);
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptExpansion",
